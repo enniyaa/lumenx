@@ -208,9 +208,11 @@ def build_conversation_summary(
         f"Threads ({len(threads)} total, showing {len(lines)}):\n{thread_list}"
     )
 
-    # 3. Call Haiku
+    # 3. Call Haiku (with retry)
     try:
-        response = client.messages.create(
+        from agent.retry import call_with_retry
+        response = call_with_retry(
+            client.messages.create,
             model=SUMMARY_MODEL,
             max_tokens=200,
             messages=[{"role": "user", "content": prompt}],

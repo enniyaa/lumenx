@@ -124,7 +124,9 @@ def classify(
     if client is None:
         client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-    response = client.messages.create(
+    from agent.retry import call_with_retry
+    response = call_with_retry(
+        client.messages.create,
         model=INTENT_MODEL,
         max_tokens=20,
         system=SYSTEM_PROMPT,

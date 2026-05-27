@@ -1,0 +1,29 @@
+# ── LumenX Auto-Reply Agent — Railway deployment config ──────────────────────
+# Docs: https://docs.railway.app/reference/config-as-code
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "uvicorn agent.main:app --host 0.0.0.0 --port $PORT --workers 1"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[[services]]
+name = "lumenx-agent"
+
+[services.variables]
+PORT = "8001"
+LOG_LEVEL = "INFO"
+POLL_INTERVAL_SECONDS = "5"
+CONFIDENCE_THRESHOLD = "0.90"
+MIN_REAL_LABELS_FOR_ROUTING = "50"
+CONTEXT_BUDGET_TOKENS = "4000"
+REPLY_MAX_TOKENS = "500"
+DATABASE_URL = "sqlite:////data/agent.db"
+# ANTHROPIC_API_KEY    — set in Railway secret env vars (never commit)
+# LUMENX_ADMIN_TOKEN   — set in Railway secret env vars (never commit)
+# LUMENX_BASE_URL      — set in Railway secret env vars (never commit)

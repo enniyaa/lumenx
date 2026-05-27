@@ -145,7 +145,9 @@ def generate_draft(
     ]
 
     # ── 3. Call Sonnet ────────────────────────────────────────────────────────
-    response = client.messages.create(
+    from agent.retry import call_with_retry
+    response = call_with_retry(
+        client.messages.create,
         model=DRAFT_MODEL,
         max_tokens=REPLY_MAX_TOKENS,
         system=system_blocks,

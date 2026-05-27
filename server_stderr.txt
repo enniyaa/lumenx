@@ -1,0 +1,109 @@
+INFO:     Started server process [22060]
+INFO:     Waiting for application startup.
+2026-05-27 14:18:21,970  INFO     lumenx.main  DB initialised
+2026-05-27 14:18:22,280  INFO     faiss.loader  Loading faiss with AVX512 support.
+2026-05-27 14:18:22,282  INFO     faiss.loader  Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+2026-05-27 14:18:22,282  INFO     faiss.loader  Loading faiss with AVX2 support.
+2026-05-27 14:18:22,378  INFO     faiss.loader  Successfully loaded faiss with AVX2 support.
+2026-05-27 14:18:22,428  INFO     faiss  Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes.
+2026-05-27 14:18:50,696  INFO     sentence_transformers.SentenceTransformer  Use pytorch device_name: cpu
+2026-05-27 14:18:50,712  INFO     sentence_transformers.SentenceTransformer  Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-27 14:18:58,854  INFO     lumenx.main  FAISS wiki loaded
+2026-05-27 14:18:58,863  INFO     lumenx.main  ConfidenceNet loaded=True
+2026-05-27 14:18:59,513  INFO     lumenx.poller  Poller started (interval=5s)
+2026-05-27 14:18:59,513  INFO     lumenx.poller  Poller thread started (tid=17912)
+2026-05-27 14:18:59,513  INFO     lumenx.main  Inbox poller started
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+2026-05-27 14:25:24,475  INFO     lumenx.poller  Processing thread=live-mpnl11jj-obxmdh  msg_id=msg-4f61810e-da35-4f06-ae3a-6efe46958311  text='how much does FormCraft cost?'
+2026-05-27 14:25:25,577  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 14:25:34,077  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 14:25:34,095  INFO     sentence_transformers.SentenceTransformer  Use pytorch device_name: cpu
+2026-05-27 14:25:34,095  INFO     sentence_transformers.SentenceTransformer  Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-27 14:25:42,560  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages/count_tokens "HTTP/1.1 200 OK"
+2026-05-27 14:25:46,702  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 14:25:46,728  INFO     lumenx.poller  Routed thread=live-mpnl11jj-obxmdh  intent=pricing  confidence=0.500  action=queued  cost=$0.00999
+2026-05-27 14:25:46,728  INFO     lumenx.poller  Processed 1 message(s): ['queued']
+2026-05-27 14:35:50,381  INFO     lumenx.poller  Processing thread=live-mpnu9z7h-o7ybic  msg_id=msg-b2013fea-b189-4e28-bb70-8bb26729bb8e  text='how much does FormCraft cost?'
+2026-05-27 14:35:51,453  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 14:35:51,523  INFO     sentence_transformers.SentenceTransformer  Use pytorch device_name: cpu
+2026-05-27 14:35:51,523  INFO     sentence_transformers.SentenceTransformer  Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-27 14:36:01,919  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages/count_tokens "HTTP/1.1 200 OK"
+2026-05-27 14:36:05,673  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 14:36:05,706  INFO     lumenx.poller  Routed thread=live-mpnu9z7h-o7ybic  intent=pricing  confidence=0.500  action=queued  cost=$0.00741
+2026-05-27 14:36:05,706  INFO     lumenx.poller  Processed 1 message(s): ['queued']
+2026-05-27 14:43:12,782  INFO     lumenx.poller  Processing thread=live-mpnujhng-f331vn  msg_id=msg-35b9f707-a467-42a5-8d4d-470ed9b9e560  text='Hi, can you remind me how much EmailPilot Pro costs?'
+2026-05-27 14:43:14,332  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 14:43:14,400  INFO     sentence_transformers.SentenceTransformer  Use pytorch device_name: cpu
+2026-05-27 14:43:14,408  INFO     sentence_transformers.SentenceTransformer  Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-27 14:43:24,833  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages/count_tokens "HTTP/1.1 200 OK"
+2026-05-27 14:43:27,573  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 14:43:27,615  INFO     lumenx.poller  Routed thread=live-mpnujhng-f331vn  intent=pricing  confidence=0.500  action=queued  cost=$0.00823
+2026-05-27 14:43:27,615  INFO     lumenx.poller  Processed 1 message(s): ['queued']
+2026-05-27 14:47:25,042  INFO     lumenx.poller  Processing thread=live-mpnl1435-hv00m7  msg_id=msg-275afb01-92cc-4c17-9eb6-41aa87b06777  text='explain about the LLMWIKI'
+2026-05-27 14:47:26,140  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 14:47:26,213  INFO     sentence_transformers.SentenceTransformer  Use pytorch device_name: cpu
+2026-05-27 14:47:26,213  INFO     sentence_transformers.SentenceTransformer  Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-27 14:47:37,219  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages/count_tokens "HTTP/1.1 200 OK"
+2026-05-27 14:47:41,751  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 14:47:41,794  INFO     lumenx.poller  Routed thread=live-mpnl1435-hv00m7  intent=other  confidence=0.500  action=queued  cost=$0.00824
+2026-05-27 14:47:41,794  INFO     lumenx.poller  Processed 1 message(s): ['queued']
+2026-05-27 14:52:45,818  WARNING  lumenx.poller  Inbox fetch failed: HTTPSConnectionPool(host='lumenx-demo.up.railway.app', port=443): Max retries exceeded with url: /api/admin/inbox?since=2026-05-27T08%3A22%3A45.725344%2B00%3A00 (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000001A26633C260>: Failed to resolve 'lumenx-demo.up.railway.app' ([Errno 11001] getaddrinfo failed)"))
+2026-05-27 15:02:16,262  WARNING  lumenx.poller  Inbox fetch failed: HTTPSConnectionPool(host='lumenx-demo.up.railway.app', port=443): Max retries exceeded with url: /api/admin/inbox?since=2026-05-27T08%3A32%3A16.237172%2B00%3A00 (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000001A26434ED80>: Failed to resolve 'lumenx-demo.up.railway.app' ([Errno 11001] getaddrinfo failed)"))
+2026-05-27 15:09:42,487  INFO     lumenx.poller  Processing thread=live-mpnujhng-f331vn  msg_id=msg-201a4084-ce23-4afc-83ae-3178a6c0559d  text='Hi, can you remind me how much EmailPilot Pro costs?'
+2026-05-27 15:09:43,506  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 15:09:43,589  INFO     sentence_transformers.SentenceTransformer  Use pytorch device_name: cpu
+2026-05-27 15:09:43,589  INFO     sentence_transformers.SentenceTransformer  Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-27 15:09:54,138  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages/count_tokens "HTTP/1.1 200 OK"
+2026-05-27 15:09:56,900  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 15:09:56,946  INFO     lumenx.poller  Routed thread=live-mpnujhng-f331vn  intent=pricing  confidence=0.500  action=queued  cost=$0.00917
+2026-05-27 15:09:56,948  INFO     lumenx.poller  Processed 1 message(s): ['queued']
+2026-05-27 15:11:07,873  INFO     lumenx.poller  Processing thread=live-mpnl12aq-c0qgrm  msg_id=msg-b608c885-8f15-44fa-9f37-d28e240fc692  text='Tell me about Taskgrid'
+2026-05-27 15:11:08,859  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 15:11:08,927  INFO     sentence_transformers.SentenceTransformer  Use pytorch device_name: cpu
+2026-05-27 15:11:08,927  INFO     sentence_transformers.SentenceTransformer  Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-27 15:11:19,172  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages/count_tokens "HTTP/1.1 200 OK"
+2026-05-27 15:11:24,304  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 15:11:24,339  INFO     lumenx.poller  Routed thread=live-mpnl12aq-c0qgrm  intent=other  confidence=0.500  action=queued  cost=$0.01341
+2026-05-27 15:11:24,339  INFO     lumenx.poller  Processed 1 message(s): ['queued']
+2026-05-27 15:56:54,241  INFO     lumenx.poller  Processing thread=live-mpnx5vfe-6tuls4  msg_id=msg-dbf18b9b-41e4-4764-986c-b914ba7deeda  text='Do we need any LLM to buy your products'
+2026-05-27 15:56:55,278  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 15:56:55,331  INFO     sentence_transformers.SentenceTransformer  Use pytorch device_name: cpu
+2026-05-27 15:56:55,332  INFO     sentence_transformers.SentenceTransformer  Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-05-27 15:57:03,269  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages/count_tokens "HTTP/1.1 200 OK"
+2026-05-27 15:57:06,469  INFO     httpx  HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 200 OK"
+2026-05-27 15:57:06,501  INFO     lumenx.poller  Routed thread=live-mpnx5vfe-6tuls4  intent=other  confidence=0.500  action=queued  cost=$0.00594
+2026-05-27 15:57:06,501  INFO     lumenx.poller  Processed 1 message(s): ['queued']
+2026-05-27 16:05:22,526  WARNING  lumenx.poller  Inbox fetch failed: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-27 16:10:40,579  WARNING  lumenx.poller  Inbox fetch failed: HTTPSConnectionPool(host='lumenx-demo.up.railway.app', port=443): Max retries exceeded with url: /api/admin/inbox?since=2026-05-27T09%3A40%3A40.499415%2B00%3A00 (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000001A2663F9FD0>: Failed to resolve 'lumenx-demo.up.railway.app' ([Errno 11001] getaddrinfo failed)"))
+2026-05-27 16:43:26,133  ERROR    asyncio  Exception in callback _ProactorBasePipeTransport._call_connection_lost(None)
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "C:\Users\enni45rp01\AppData\Local\Programs\Python\Python312\Lib\asyncio\events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\enni45rp01\AppData\Local\Programs\Python\Python312\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-05-27 16:43:26,298  WARNING  lumenx.poller  Inbox fetch failed: HTTPSConnectionPool(host='lumenx-demo.up.railway.app', port=443): Max retries exceeded with url: /api/admin/inbox?since=2026-05-27T10%3A13%3A26.239527%2B00%3A00 (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000001A2663F8AA0>: Failed to resolve 'lumenx-demo.up.railway.app' ([Errno 11001] getaddrinfo failed)"))
+2026-05-27 16:47:21,039  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.7}
+2026-05-27 16:47:21,039  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.71}
+2026-05-27 16:47:21,042  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.74}
+2026-05-27 16:47:21,042  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.73}
+2026-05-27 16:47:21,046  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.75}
+2026-05-27 16:47:21,046  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.72}
+2026-05-27 16:47:21,052  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.78}
+2026-05-27 16:47:21,055  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.76}
+2026-05-27 16:47:21,055  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.77}
+2026-05-27 16:47:21,055  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.79}
+2026-05-27 16:47:21,058  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.8}
+2026-05-27 16:47:21,066  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.84}
+2026-05-27 16:47:21,068  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.81}
+2026-05-27 16:47:21,068  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.82}
+2026-05-27 16:47:21,071  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.83}
+2026-05-27 16:47:21,071  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.87}
+2026-05-27 16:47:21,071  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.85}
+2026-05-27 16:47:21,071  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.88}
+2026-05-27 16:47:21,077  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.86}
+2026-05-27 16:47:21,077  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.89}
+2026-05-27 16:47:21,088  INFO     lumenx.main  Config updated: {'confidence_threshold': 0.9}
