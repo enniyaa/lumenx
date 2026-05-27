@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LumenX Knowledge Graph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  /* ── CSS Variables ──────────────────────────────────────────────── */
+  :root {
+    --bg-primary: #07091a;
+    --bg-secondary: #0d1130;
+    --bg-card: rgba(255,255,255,0.04);
+    --border: rgba(148,163,255,0.12);
+    --text-primary: #e2e8ff;
+    --text-secondary: #7b88b4;
+    --accent: #6c63ff;
+    --glow: rgba(108,99,255,0.3);
+
+    --communication: #4da6ff;
+    --finance: #00e5a0;
+    --productivity: #ff9f4f;
+    --documents: #c77dff;
+    --analytics: #ff6b6b;
+    --utilities: #4ecdc4;
+    --integration: #ffd700;
+  }
+
+  /* ── Reset & Base ───────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────────── */
+  .header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 14px 24px;
+    background: rgba(13,17,48,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    flex-shrink: 0;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .logo-star {
+    color: var(--accent);
+    font-size: 20px;
+    filter: drop-shadow(0 0 6px var(--accent));
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 10px;
+    margin-left: 8px;
+  }
+
+  .stat-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .stat-badge span {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .header-search {
+    margin-left: auto;
+    position: relative;
+  }
+
+  .search-input {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 7px 14px 7px 36px;
+    width: 220px;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
+
+  .search-input::placeholder { color: var(--text-secondary); }
+
+  .search-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  /* ── Main Layout ─────────────────────────────────────────────────── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Graph Panel ─────────────────────────────────────────────────── */
+  .graph-panel {
+    flex: 0 0 60%;
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid var(--border);
+  }
+
+  #graph-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Node styles */
+  .node-product circle {
+    stroke: rgba(255,255,255,0.2);
+    stroke-width: 1.5px;
+    cursor: pointer;
+    transition: r 0.15s;
+  }
+
+  .node-integration circle {
+    stroke: rgba(255,215,0,0.4);
+    stroke-width: 1px;
+    cursor: pointer;
+  }
+
+  .node-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    fill: rgba(226,232,255,0.75);
+    text-anchor: middle;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .link {
+    stroke: rgba(148,163,255,0.18);
+    stroke-width: 1.5px;
+  }
+
+  /* Highlighted node */
+  .node-highlighted circle {
+    stroke: #fff !important;
+    stroke-width: 3px !important;
+  }
+
+  /* Dimmed node */
+  .node-dimmed circle {
+    opacity: 0.2;
+  }
+  .node-dimmed text {
+    opacity: 0.2;
+  }
+
+  /* ── Legend ──────────────────────────────────────────────────────── */
+  .legend {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(13,17,48,0.85);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    backdrop-filter: blur(12px);
+    pointer-events: none;
+  }
+
+  .legend-title {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+
+  .legend-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px 14px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-diamond {
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+
+  /* ── Zoom Controls ───────────────────────────────────────────────── */
+  .zoom-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .zoom-btn {
+    width: 32px;
+    height: 32px;
+    background: rgba(13,17,48,0.9);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text-primary);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    backdrop-filter: blur(8px);
+  }
+
+  .zoom-btn:hover {
+    background: rgba(108,99,255,0.2);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── Tooltip ─────────────────────────────────────────────────────── */
+  .tooltip {
+    position: fixed;
+    background: rgba(13,17,48,0.97);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-primary);
+    pointer-events: none;
+    z-index: 1000;
+    backdrop-filter: blur(16px);
+    max-width: 220px;
+    display: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .tooltip-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .tooltip-meta {
+    color: var(--text-secondary);
+    font-size: 11px;
+  }
+
+  /* ── Right Panel ─────────────────────────────────────────────────── */
+  .right-panel {
+    flex: 0 0 40%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: rgba(13,17,48,0.5);
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .tab-btn.active {
+    color: var(--text-primary);
+  }
+
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 2px 2px 0 0;
+  }
+
+  .tab-btn:hover:not(.active) {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.03);
+  }
+
+  /* Tab content */
+  .tab-content {
+    display: none;
+    flex: 1;
+    overflow: hidden;
+    flex-direction: column;
+  }
+
+  .tab-content.active { display: flex; }
+
+  /* ── Chat Panel ──────────────────────────────────────────────────── */
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(108,99,255,0.3) transparent;
+  }
+
+  .chat-messages::-webkit-scrollbar { width: 5px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(108,99,255,0.3);
+    border-radius: 3px;
+  }
+
+  /* Suggested questions */
+  .suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 0 8px;
+  }
+
+  .suggestions-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    margin-bottom: 4px;
+  }
+
+  .suggestion-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 12.5px;
+    padding: 9px 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1.4;
+  }
+
+  .suggestion-btn:hover {
+    background: rgba(108,99,255,0.1);
+    border-color: rgba(108,99,255,0.3);
+    color: var(--text-primary);
+  }
+
+  /* Chat bubbles */
+  .msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%;
+    animation: msgSlideIn 0.25s ease forwards;
+  }
+
+  .msg-user { align-self: flex-end; }
+  .msg-assistant { align-self: flex-start; }
+
+  @keyframes msgSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-bubble {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  .msg-user .msg-bubble {
+    background: linear-gradient(135deg, var(--accent), #4a9eff);
+    color: #fff;
+    border-bottom-right-radius: 3px;
+  }
+
+  .msg-assistant .msg-bubble {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    border-bottom-left-radius: 3px;
+  }
+
+  /* Source chips */
+  .source-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 0 2px;
+  }
+
+  .source-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    color: #fff;
+  }
+
+  .source-chip:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+  }
+
+  .source-chip::before {
+    content: '◉';
+    font-size: 8px;
+    opacity: 0.8;
+  }
+
+  /* Cost line */
+  .msg-meta {
+    font-size: 10.5px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+    padding: 0 2px;
+  }
+
+  /* Loading dots */
+  .loading-dots {
+    display: flex;
+    gap: 5px;
+    padding: 8px 2px;
+  }
+
+  .loading-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite ease-in-out;
+  }
+
+  .loading-dot:nth-child(1) { animation-delay: 0s; }
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-8px); }
+  }
+
+  /* Chat input */
+  .chat-input-area {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    background: rgba(13,17,48,0.6);
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13.5px;
+    padding: 10px 14px;
+    outline: none;
+    resize: none;
+    min-height: 42px;
+    max-height: 120px;
+    line-height: 1.5;
+    transition: all 0.2s;
+  }
+
+  .chat-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
+
+  .chat-input::placeholder { color: var(--text-secondary); }
+
+  .send-btn {
+    width: 42px;
+    height: 42px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+
+  .send-btn:hover {
+    background: #7c74ff;
+    box-shadow: 0 4px 16px rgba(108,99,255,0.5);
+    transform: translateY(-1px);
+  }
+
+  .send-btn:active { transform: translateY(0); }
+  .send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ── Node Info Panel ─────────────────────────────────────────────── */
+  .node-info {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(108,99,255,0.3) transparent;
+  }
+
+  .node-info::-webkit-scrollbar { width: 5px; }
+  .node-info::-webkit-scrollbar-track { background: transparent; }
+  .node-info::-webkit-scrollbar-thumb {
+    background: rgba(108,99,255,0.3);
+    border-radius: 3px;
+  }
+
+  .node-info-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+    text-align: center;
+    gap: 12px;
+  }
+
+  .node-info-empty svg {
+    opacity: 0.25;
+  }
+
+  .node-info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .node-info-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .node-info-name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .node-info-category {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    text-transform: capitalize;
+  }
+
+  .node-section {
+    margin-bottom: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .node-section-header {
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .node-section-body {
+    padding: 12px 14px;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Integration node info */
+  .integration-products {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .product-tag {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    color: #fff;
+    transition: all 0.2s;
+  }
+
+  .product-tag:hover {
+    transform: translateY(-1px);
+    opacity: 0.85;
+  }
+
+  /* ── Pulse animation ─────────────────────────────────────────────── */
+  @keyframes pulseNode {
+    0%, 100% { r: 28; opacity: 1; }
+    50%       { r: 34; opacity: 0.7; }
+  }
+
+  .node-pulse circle {
+    animation: pulseNode 1s ease-in-out 3;
+  }
+
+  /* ── Scrollbar ───────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.3); border-radius: 3px; }
+
+  /* ── Markdown-ish formatting ────────────────────────────────────── */
+  .msg-bubble strong { font-weight: 700; color: #fff; }
+  .msg-bubble em { font-style: italic; color: rgba(226,232,255,0.85); }
+
+  /* Intro message */
+  .intro-msg {
+    background: linear-gradient(135deg, rgba(108,99,255,0.12), rgba(74,158,255,0.08));
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .intro-msg strong {
+    color: var(--text-primary);
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo">
+    <span class="logo-star">✦</span>
+    LumenX Knowledge Graph
+  </div>
+  <div class="header-stats">
+    <div class="stat-badge">📦 <span id="stat-products">—</span> Products</div>
+    <div class="stat-badge">🧩 <span id="stat-chunks">—</span> Chunks</div>
+    <div class="stat-badge">🔗 <span id="stat-links">—</span> Links</div>
+  </div>
+  <div class="header-search">
+    <span class="search-icon">🔍</span>
+    <input
+      type="text"
+      class="search-input"
+      id="search-input"
+      placeholder="Search nodes…"
+      autocomplete="off"
+    >
+  </div>
+</header>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Graph Panel -->
+  <div class="graph-panel" id="graph-panel">
+    <svg id="graph-svg"></svg>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-title">Categories</div>
+      <div class="legend-items">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--communication)"></div>Communication</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--finance)"></div>Finance</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--productivity)"></div>Productivity</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--documents)"></div>Documents</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--analytics)"></div>Analytics</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--utilities)"></div>Utilities</div>
+        <div class="legend-item"><div class="legend-diamond" style="background:var(--integration)"></div>Integration</div>
+      </div>
+    </div>
+
+    <!-- Zoom Controls -->
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoom-in" title="Zoom in">+</button>
+      <button class="zoom-btn" id="zoom-out" title="Zoom out">−</button>
+      <button class="zoom-btn" id="zoom-reset" title="Reset view" style="font-size:12px;">⌂</button>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-chat" onclick="switchTab('chat')">💬 Chat</button>
+      <button class="tab-btn" id="tab-node" onclick="switchTab('node')">🔷 Node Info</button>
+    </div>
+
+    <!-- Chat Tab -->
+    <div class="tab-content active" id="content-chat">
+      <div class="chat-messages" id="chat-messages">
+        <div class="intro-msg">
+          <strong>LumenX Wiki Assistant</strong><br>
+          Ask anything about our 20 products — pricing, features, integrations, and more. Click any node in the graph to explore, or use the suggestions below.
+        </div>
+        <div class="suggestions" id="suggestions">
+          <div class="suggestions-label">Suggested questions</div>
+          <button class="suggestion-btn" onclick="askSuggestion(this)">Which products integrate with Slack?</button>
+          <button class="suggestion-btn" onclick="askSuggestion(this)">What is the refund policy for EmailPilot?</button>
+          <button class="suggestion-btn" onclick="askSuggestion(this)">Compare TaskGrid vs KanbanLite features</button>
+          <button class="suggestion-btn" onclick="askSuggestion(this)">Which products have a free trial?</button>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <textarea
+          class="chat-input"
+          id="chat-input"
+          placeholder="Ask about LumenX products…"
+          rows="1"
+          onkeydown="handleInputKeydown(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Send">➤</button>
+      </div>
+    </div>
+
+    <!-- Node Info Tab -->
+    <div class="tab-content" id="content-node">
+      <div class="node-info" id="node-info">
+        <div class="node-info-empty">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="2"/>
+            <circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/>
+            <line x1="24" y1="4" x2="24" y2="16" stroke="currentColor" stroke-width="2"/>
+            <line x1="24" y1="32" x2="24" y2="44" stroke="currentColor" stroke-width="2"/>
+            <line x1="4" y1="24" x2="16" y2="24" stroke="currentColor" stroke-width="2"/>
+            <line x1="32" y1="24" x2="44" y2="24" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <div>Click a node in the graph<br>to view its details here</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip">
+  <div class="tooltip-name" id="tooltip-name"></div>
+  <div class="tooltip-meta" id="tooltip-meta"></div>
+</div>
+
+<script>
+// ── Color mapping ──────────────────────────────────────────────────────────
+const CATEGORY_COLORS = {
+  communication: '#4da6ff',
+  finance:       '#00e5a0',
+  productivity:  '#ff9f4f',
+  documents:     '#c77dff',
+  analytics:     '#ff6b6b',
+  utilities:     '#4ecdc4',
+  integration:   '#ffd700',
+};
+
+function categoryColor(cat) {
+  return CATEGORY_COLORS[cat] || '#7b88b4';
+}
+
+function initials(name) {
+  return name.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function truncate(str, n) {
+  return str.length > n ? str.slice(0, n - 1) + '…' : str;
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+let graphData = null;
+let simulation = null;
+let svgZoom = null;
+let nodeGroups = null;
+let selectedNodeId = null;
+
+// ── Load & render graph ────────────────────────────────────────────────────
+async function loadGraph() {
+  const res = await fetch('/api/graph');
+  graphData = await res.json();
+
+  // Update stats
+  document.getElementById('stat-products').textContent = graphData.stats.products;
+  document.getElementById('stat-chunks').textContent = graphData.stats.chunks;
+  document.getElementById('stat-links').textContent = graphData.links.length;
+
+  renderGraph(graphData);
+}
+
+function renderGraph(data) {
+  const container = document.getElementById('graph-panel');
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+
+  const svg = d3.select('#graph-svg')
+    .attr('width', W)
+    .attr('height', H);
+
+  svg.selectAll('*').remove();
+
+  // Defs: glows
+  const defs = svg.append('defs');
+  Object.entries(CATEGORY_COLORS).forEach(([cat, color]) => {
+    const filter = defs.append('filter').attr('id', `glow-${cat}`);
+    const feBlur = filter.append('feGaussianBlur')
+      .attr('stdDeviation', '4')
+      .attr('result', 'coloredBlur');
+    const feMerge = filter.append('feMerge');
+    feMerge.append('feMergeNode').attr('in', 'coloredBlur');
+    feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+  });
+
+  // Zoom behavior
+  const g = svg.append('g');
+  svgZoom = d3.zoom()
+    .scaleExtent([0.2, 4])
+    .on('zoom', (event) => g.attr('transform', event.transform));
+  svg.call(svgZoom);
+
+  // Build nodes/links with copies
+  const nodes = data.nodes.map(d => Object.assign({}, d));
+  const links = data.links.map(d => Object.assign({}, d));
+
+  // Force simulation
+  simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(120).strength(0.8))
+    .force('charge', d3.forceManyBody().strength(-400))
+    .force('center', d3.forceCenter(W / 2, H / 2))
+    .force('collision', d3.forceCollide().radius(d => d.type === 'product' ? 38 : 22))
+    .alphaDecay(0.02);
+
+  // Links
+  const link = g.append('g').attr('class', 'links')
+    .selectAll('line')
+    .data(links)
+    .join('line')
+    .attr('class', 'link');
+
+  // Node groups
+  nodeGroups = g.append('g').attr('class', 'nodes')
+    .selectAll('g')
+    .data(nodes)
+    .join('g')
+    .attr('class', d => `node node-${d.type}`)
+    .attr('data-id', d => d.id)
+    .call(d3.drag()
+      .on('start', dragStart)
+      .on('drag', dragged)
+      .on('end', dragEnd)
+    )
+    .on('mouseenter', showTooltip)
+    .on('mousemove', moveTooltip)
+    .on('mouseleave', hideTooltip)
+    .on('click', nodeClicked);
+
+  // Product nodes: circle + initials
+  nodeGroups.filter(d => d.type === 'product')
+    .append('circle')
+    .attr('r', 28)
+    .attr('fill', d => categoryColor(d.category))
+    .style('filter', d => `url(#glow-${d.category})`)
+    .style('opacity', 0)
+    .transition().duration(600).delay((d, i) => i * 20)
+    .style('opacity', 1);
+
+  nodeGroups.filter(d => d.type === 'product')
+    .append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dy', '0.35em')
+    .attr('fill', '#fff')
+    .attr('font-family', 'Inter, sans-serif')
+    .attr('font-size', '11px')
+    .attr('font-weight', '700')
+    .attr('pointer-events', 'none')
+    .text(d => initials(d.name));
+
+  // Integration nodes: smaller circle
+  nodeGroups.filter(d => d.type === 'integration')
+    .append('circle')
+    .attr('r', 14)
+    .attr('fill', '#ffd700')
+    .attr('fill-opacity', 0.85)
+    .style('filter', 'url(#glow-integration)')
+    .style('opacity', 0)
+    .transition().duration(600).delay((d, i) => i * 30)
+    .style('opacity', 1);
+
+  // Labels below nodes
+  nodeGroups.append('text')
+    .attr('class', 'node-label')
+    .attr('y', d => d.type === 'product' ? 42 : 26)
+    .text(d => truncate(d.name, 12));
+
+  // Tick
+  simulation.on('tick', () => {
+    link
+      .attr('x1', d => d.source.x)
+      .attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x)
+      .attr('y2', d => d.target.y);
+
+    nodeGroups.attr('transform', d => `translate(${d.x},${d.y})`);
+  });
+}
+
+// ── Drag ───────────────────────────────────────────────────────────────────
+function dragStart(event, d) {
+  if (!event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x; d.fy = d.y;
+}
+function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+function dragEnd(event, d) {
+  if (!event.active) simulation.alphaTarget(0);
+  d.fx = null; d.fy = null;
+}
+
+// ── Tooltip ────────────────────────────────────────────────────────────────
+function showTooltip(event, d) {
+  const t = document.getElementById('tooltip');
+  document.getElementById('tooltip-name').textContent = d.name;
+  let meta = '';
+  if (d.type === 'product') {
+    meta = `${d.category} · ${Object.keys(d.sections || {}).length} sections`;
+  } else {
+    meta = `Integration · used by ${(d.products || []).length} products`;
+  }
+  document.getElementById('tooltip-meta').textContent = meta;
+  t.style.display = 'block';
+  moveTooltip(event);
+}
+
+function moveTooltip(event) {
+  const t = document.getElementById('tooltip');
+  t.style.left = (event.clientX + 14) + 'px';
+  t.style.top = (event.clientY - 10) + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+// ── Node click ─────────────────────────────────────────────────────────────
+function nodeClicked(event, d) {
+  selectedNodeId = d.id;
+  switchTab('node');
+  renderNodeInfo(d);
+  pulseNode(d.id);
+}
+
+function renderNodeInfo(d) {
+  const container = document.getElementById('node-info');
+
+  if (d.type === 'product') {
+    const color = categoryColor(d.category);
+    const sectionLabels = {
+      overview: 'Overview',
+      target_audience: 'Target Audience',
+      features: 'Features',
+      pricing: 'Pricing',
+      refund_policy: 'Refund Policy',
+      integrations: 'Integrations',
+      additional_info: 'Additional Info',
+    };
+
+    let sectionsHTML = '';
+    if (d.sections) {
+      for (const [key, text] of Object.entries(d.sections)) {
+        const label = sectionLabels[key] || key.replace(/_/g, ' ');
+        // Clean up the text a bit (remove the header bracket prefix)
+        const cleanText = text.replace(/^\[.+?\]\n/, '');
+        sectionsHTML += `
+          <div class="node-section">
+            <div class="node-section-header">${label}</div>
+            <div class="node-section-body">${escapeHtml(cleanText)}</div>
+          </div>
+        `;
+      }
+    }
+
+    container.innerHTML = `
+      <div class="node-info-header">
+        <div class="node-info-avatar" style="background:${color}">
+          ${initials(d.name)}
+        </div>
+        <div>
+          <div class="node-info-name">${escapeHtml(d.name)}</div>
+          <div class="node-info-category" style="color:${color}">${d.category}</div>
+        </div>
+      </div>
+      ${sectionsHTML}
+    `;
+  } else {
+    // Integration node
+    const products = (d.products || []).map(pid => {
+      const node = graphData.nodes.find(n => n.id === pid);
+      if (!node) return '';
+      const col = categoryColor(node.category);
+      return `<span class="product-tag" style="background:${col}" onclick="selectProductNode('${pid}')">${escapeHtml(node.name)}</span>`;
+    }).join('');
+
+    container.innerHTML = `
+      <div class="node-info-header">
+        <div class="node-info-avatar" style="background:#ffd700;color:#07091a">
+          🔗
+        </div>
+        <div>
+          <div class="node-info-name">${escapeHtml(d.name)}</div>
+          <div class="node-info-category" style="color:#ffd700">Integration</div>
+        </div>
+      </div>
+      <div class="node-section">
+        <div class="node-section-header">Products using this integration</div>
+        <div class="node-section-body">
+          <div class="integration-products">${products}</div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function selectProductNode(pid) {
+  const node = graphData.nodes.find(n => n.id === pid);
+  if (node) {
+    selectedNodeId = pid;
+    renderNodeInfo(node);
+    pulseNode(pid);
+    // Pan graph to node
+    centerOnNode(node);
+  }
+}
+
+// ── Highlight nodes from search ────────────────────────────────────────────
+document.getElementById('search-input').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  if (!nodeGroups) return;
+
+  nodeGroups.classed('node-dimmed', false);
+
+  if (!q) return;
+
+  nodeGroups.classed('node-dimmed', d => {
+    return !d.name.toLowerCase().includes(q) && !d.id.toLowerCase().includes(q);
+  });
+});
+
+// ── Highlight source nodes from chat ──────────────────────────────────────
+function highlightSourceNodes(productIds) {
+  if (!nodeGroups) return;
+  productIds.forEach(pid => {
+    pulseNode(pid);
+  });
+}
+
+function pulseNode(nodeId) {
+  if (!nodeGroups) return;
+  nodeGroups.filter(d => d.id === nodeId)
+    .classed('node-pulse', false) // reset
+    .classed('node-highlighted', true);
+
+  // Re-trigger pulse animation
+  setTimeout(() => {
+    nodeGroups.filter(d => d.id === nodeId)
+      .classed('node-pulse', true);
+    setTimeout(() => {
+      nodeGroups.filter(d => d.id === nodeId)
+        .classed('node-pulse', false);
+    }, 3200);
+  }, 10);
+}
+
+function centerOnNode(nodeData) {
+  if (!svgZoom || !nodeData.x) return;
+  const svg = d3.select('#graph-svg');
+  const container = document.getElementById('graph-panel');
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+  svg.transition().duration(600)
+    .call(svgZoom.transform, d3.zoomIdentity
+      .translate(W / 2 - nodeData.x, H / 2 - nodeData.y)
+    );
+}
+
+// ── Zoom controls ──────────────────────────────────────────────────────────
+document.getElementById('zoom-in').onclick = () => {
+  d3.select('#graph-svg').transition().call(svgZoom.scaleBy, 1.4);
+};
+document.getElementById('zoom-out').onclick = () => {
+  d3.select('#graph-svg').transition().call(svgZoom.scaleBy, 0.7);
+};
+document.getElementById('zoom-reset').onclick = () => {
+  d3.select('#graph-svg').transition().call(svgZoom.transform, d3.zoomIdentity);
+};
+
+// ── Tabs ───────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('content-' + name).classList.add('active');
+}
+
+// ── Chat ───────────────────────────────────────────────────────────────────
+function askSuggestion(btn) {
+  const q = btn.textContent;
+  document.getElementById('chat-input').value = q;
+  sendMessage();
+}
+
+function handleInputKeydown(event) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const question = input.value.trim();
+  if (!question) return;
+
+  const sendBtn = document.getElementById('send-btn');
+  sendBtn.disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Hide suggestions on first message
+  const sugg = document.getElementById('suggestions');
+  if (sugg) sugg.style.display = 'none';
+
+  const msgs = document.getElementById('chat-messages');
+
+  // Add user message
+  appendMessage('user', question);
+
+  // Add loading dots
+  const loadingId = 'loading-' + Date.now();
+  const loadingEl = document.createElement('div');
+  loadingEl.id = loadingId;
+  loadingEl.className = 'msg msg-assistant';
+  loadingEl.innerHTML = `<div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>`;
+  msgs.appendChild(loadingEl);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  try {
+    const res = await fetch('/api/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question })
+    });
+
+    const data = await res.json();
+
+    // Remove loading
+    document.getElementById(loadingId)?.remove();
+
+    // Add assistant message
+    appendAssistantMessage(data);
+
+    // Highlight source nodes in graph
+    if (data.sources && data.sources.length > 0) {
+      const ids = [...new Set(data.sources.map(s => s.product_id))];
+      highlightSourceNodes(ids);
+    }
+
+  } catch (err) {
+    document.getElementById(loadingId)?.remove();
+    appendMessage('assistant', '⚠️ Error reaching the server. Please try again.');
+  }
+
+  sendBtn.disabled = false;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function appendMessage(role, text) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role}`;
+  div.innerHTML = `<div class="msg-bubble">${escapeHtml(text)}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function appendAssistantMessage(data) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-assistant';
+
+  // Format answer (basic bold/italic markdown)
+  const formattedAnswer = formatMarkdown(data.answer || '');
+
+  // Source chips
+  let chipsHTML = '';
+  if (data.sources && data.sources.length > 0) {
+    const seen = new Set();
+    chipsHTML = '<div class="source-chips">';
+    for (const src of data.sources) {
+      const key = `${src.product_id}__${src.section}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const color = categoryColor(getProductCategory(src.product_id));
+      chipsHTML += `
+        <span class="source-chip"
+          style="background:${color}22;border-color:${color}44;color:${color}"
+          onclick="handleSourceChip('${src.product_id}', '${escapeAttr(src.product_name)}', '${escapeAttr(src.section)}')"
+          title="${escapeAttr(src.snippet)}"
+        >${escapeHtml(src.product_name)} — ${escapeHtml(src.section.replace(/_/g,' '))}</span>
+      `;
+    }
+    chipsHTML += '</div>';
+  }
+
+  // Cost
+  let costHTML = '';
+  if (data.meta) {
+    const cost = data.meta.cost_usd ? `~$${data.meta.cost_usd.toFixed(6)}` : '';
+    const tokens = data.meta.output_tokens ? `${data.meta.output_tokens} tokens` : '';
+    if (cost || tokens) {
+      costHTML = `<div class="msg-meta">${[cost, tokens].filter(Boolean).join(' · ')}</div>`;
+    }
+  }
+
+  div.innerHTML = `
+    <div class="msg-bubble">${formattedAnswer}</div>
+    ${chipsHTML}
+    ${costHTML}
+  `;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function handleSourceChip(productId, productName, section) {
+  // Highlight in graph
+  pulseNode(productId);
+
+  // Center on node
+  if (graphData) {
+    const node = graphData.nodes.find(n => n.id === productId);
+    if (node) centerOnNode(node);
+  }
+
+  // Switch to node tab and show info
+  const node = graphData && graphData.nodes.find(n => n.id === productId);
+  if (node) {
+    switchTab('node');
+    renderNodeInfo(node);
+  }
+}
+
+function getProductCategory(productId) {
+  const cats = {
+    emailpilot:'communication', inboxclean:'communication', chatrelay:'communication',
+    invoiceflow:'finance', billsplit:'finance', receiptvault:'finance',
+    taskgrid:'productivity', timemark:'productivity', kanbanlite:'productivity', meetminutes:'productivity',
+    documerge:'documents', signpath:'documents', formcraft:'documents',
+    audittrail:'analytics', teampulse:'analytics',
+    calendarsync:'utilities', notehub:'utilities', pollwise:'utilities', pixeldeck:'utilities', linkvault:'utilities',
+  };
+  return cats[productId] || 'utilities';
+}
+
+// ── Markdown formatter ─────────────────────────────────────────────────────
+function formatMarkdown(text) {
+  return escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+}
+
+// ── HTML escape ────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeAttr(str) {
+  return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ── Resize handler ─────────────────────────────────────────────────────────
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (graphData) renderGraph(graphData);
+  }, 250);
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────
+loadGraph();
+</script>
+</body>
+</html>
