@@ -12,7 +12,7 @@
 | 1 | Project Scaffolding & LLM Wiki | ✅ COMPLETE |
 | 2 | Intent Router | ✅ COMPLETE |
 | 3 | Context Builder | ✅ COMPLETE |
-| 4 | Draft Agent | ⏳ PENDING |
+| 4 | Draft Agent | ✅ COMPLETE |
 | 5 | Human Review UI + Feedback Capture | ⏳ PENDING |
 | 6 | Feedback Log | ⏳ PENDING |
 | 7 | Confidence Net (MLP) | ⏳ PENDING |
@@ -98,19 +98,40 @@
 
 ---
 
-## Phase 4 — Draft Agent ⏳ PENDING PERMISSION
+## Phase 4 — Draft Agent ✅ COMPLETE
 
 **Goal**: Generate a high-quality, grounded reply using Claude Sonnet.
 
 | Task | Status |
 |------|--------|
-| `agent/draft_agent.py` created | ⏳ |
-| System prompt with strict no-hallucination rules | ⏳ |
-| Sonnet (`claude-sonnet-4-6`) with `max_tokens=500` | ⏳ |
-| Prompt caching: `cache_control: {"type":"ephemeral"}` on system + wiki | ⏳ |
-| Full usage tracking (input/output/cache_read/cache_creation tokens) | ⏳ |
-| USD cost calculation + `CostLog` insert | ⏳ |
-| Return `DraftResult(text, model, tokens, cost_usd, cache_hit)` | ⏳ |
+| `agent/draft_agent.py` created | ✅ |
+| System prompt with strict no-hallucination rules (imported from `context_builder.AGENT_SYSTEM_PROMPT`) | ✅ |
+| Sonnet (`claude-sonnet-4-6`) with `max_tokens=500` | ✅ |
+| Prompt caching: `cache_control: {"type":"ephemeral"}` on system + wiki/summary blocks | ✅ |
+| Full usage tracking (input/output/cache_read/cache_creation tokens) | ✅ |
+| USD cost calculation + `CostLog` insert | ✅ |
+| `DraftResult` dataclass: text, model, tokens, cost_usd, cache_hit, context_json | ✅ |
+| Self-test: 4 intents × real LumenX thread, sign-off verified | ✅ |
+
+**Final test result**: 4/4 replies generated — sign-off "— LumenX Support" present ✅  
+**Cost per reply**: $0.004–$0.007 (Sonnet, no cache yet)  
+**DB logging**: 4 CostLog rows confirmed in `data/agent.db`
+
+**Cache note**: Test context was ~550 tokens (below Anthropic's 1024-token minimum for prompt caching). Cache misses are expected on small test contexts. In production, system prompt (~400 tok) + full wiki chunks (~600 tok) + summary (~400 tok) easily exceed 1024 tokens and the cache will activate on repeat requests for the same product.
+
+**`DraftResult` fields**:
+```
+text                        — generated reply
+model                       — "claude-sonnet-4-6"
+input_tokens                — total input tokens billed
+output_tokens               — reply tokens
+cache_read_input_tokens     — tokens loaded from cache (0.1× price)
+cache_creation_input_tokens — tokens written to cache (1.25× price)
+cost_usd                    — total USD cost
+cache_hit                   — True if cache_read_input_tokens > 0
+context_json                — serialised system/cacheable/dynamic split (for Phase 9 dashboard)
+exact_context_tokens        — token count from Phase 3 context builder
+```
 
 ---
 
