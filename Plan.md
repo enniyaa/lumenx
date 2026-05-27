@@ -16,7 +16,7 @@
 | 5 | Human Review UI + Feedback Capture | ✅ COMPLETE |
 | 6 | Feedback Log | ✅ COMPLETE |
 | 7 | Confidence Net (MLP) | ✅ COMPLETE |
-| 8 | Auto-Reply Router | ⏳ PENDING |
+| 8 | Auto-Reply Router | ✅ COMPLETE |
 | 9 | Cost Dashboard | ⏳ PENDING |
 | 10 | Hardening & Deployment | ⏳ PENDING |
 
@@ -209,17 +209,33 @@ exact_context_tokens        — token count from Phase 3 context builder
 
 ---
 
-## Phase 8 — Auto-Reply Router ⏳ PENDING PERMISSION
+## Phase 8 — Auto-Reply Router ✅ COMPLETE
 
 **Goal**: Gate between auto-send and human review using confidence score.
 
 | Task | Status |
 |------|--------|
-| `agent/auto_router.py` | ⏳ |
-| Read `CONFIDENCE_THRESHOLD` from env (default 0.90) | ⏳ |
-| Auto-send path: `POST /api/admin/threads/{id}/reply` | ⏳ |
-| Queue path: insert into `ReviewQueue` | ⏳ |
-| `GET /agent/config` — view/update threshold without redeploy | ⏳ |
+| `agent/auto_router.py` | ✅ |
+| Read `CONFIDENCE_THRESHOLD` from env (default 0.90) | ✅ |
+| Auto-send path: `POST /api/admin/threads/{id}/reply` | ✅ |
+| Queue path: insert into `ReviewQueue` | ✅ |
+| `GET /agent/config` — view/update threshold without redeploy | ✅ |
+| `PUT /agent/config` — live update threshold/poller/min_labels | ✅ |
+| `POST /agent/poll` — manual poll trigger for testing/webhooks | ✅ |
+| `agent/poller.py` — InboxPoller with full pipeline + daemon thread | ✅ |
+| Rate limit: max 1 reply per thread per 5 s (in-process dict) | ✅ |
+| Error fallback: any pipeline error → enqueue for human review | ✅ |
+| Duplicate guard: tracks processed message IDs across process lifetime | ✅ |
+| Integration tests: 44/44 pass | ✅ |
+
+**Architecture**:
+- `InboxPoller` runs as a daemon thread (started at FastAPI startup)
+- `poll_once()` → fetch inbox → per-message: intent → greeting fast-path → context → draft → confidence → `auto_router.route()`
+- `auto_router.route()` gate: `model.is_loaded AND real_labels ≥ MIN_REAL_LABELS AND confidence ≥ threshold` → auto-send; else → queue
+- `_live_config` dict (updated by `PUT /agent/config`) overrides env vars in-process without restart
+- `_fallback_enqueue()` ensures no message is silently dropped on any LLM/DB exception
+
+**Current state**: Gate INACTIVE (20/50 real labels). All replies go to review queue regardless of confidence.
 
 ---
 

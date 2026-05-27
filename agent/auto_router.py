@@ -62,6 +62,7 @@ def route(
     intent: str,
     features: dict,
     context_json: str,
+    cost_usd: float = 0.0,
 ) -> dict:
     """
     Decide whether to auto-send or queue the draft.
@@ -81,17 +82,18 @@ def route(
     if model_ready and confidence >= threshold:
         success = send_reply(thread_id, draft_text, draft_source="agent", confidence=confidence)
         if success:
-            _record_auto_sent(thread_id, customer_msg, draft_text, confidence, intent, features, context_json)
+            _record_auto_sent(thread_id, customer_msg, draft_text, confidence, intent, features, context_json, cost_usd)
             return {"action": "auto_sent", "queue_id": None}
         # Fall through to queue on send failure
 
-    queue_id = _enqueue(thread_id, customer_msg, draft_text, confidence, intent, features, context_json)
+    queue_id = _enqueue(thread_id, customer_msg, draft_text, confidence, intent, features, context_json, cost_usd)
     return {"action": "queued", "queue_id": queue_id}
 
 
 # ── Private helpers ───────────────────────────────────────────────────────────
 
-def _enqueue(thread_id, customer_msg, draft_text, confidence, intent, features, context_json) -> int:
+def _enqueue(thread_id, customer_msg, draft_text, confidence, intent,
+             features, context_json, cost_usd=0.0) -> int:
     from db.session import get_db
     from db.models import ReviewQueue
     with get_db() as db:
@@ -103,6 +105,7 @@ def _enqueue(thread_id, customer_msg, draft_text, confidence, intent, features, 
             intent=intent,
             features_json=json.dumps(features),
             context_json=context_json,
+            cost_usd=cost_usd,
             status="pending",
             created_at=datetime.now(timezone.utc),
         )
@@ -111,7 +114,8 @@ def _enqueue(thread_id, customer_msg, draft_text, confidence, intent, features, 
         return item.id
 
 
-def _record_auto_sent(thread_id, customer_msg, draft_text, confidence, intent, features, context_json):
+def _record_auto_sent(thread_id, customer_msg, draft_text, confidence, intent,
+                      features, context_json, cost_usd=0.0):
     """Record an auto-sent reply in ReviewQueue for audit / dashboard."""
     from db.session import get_db
     from db.models import ReviewQueue
@@ -125,6 +129,7 @@ def _record_auto_sent(thread_id, customer_msg, draft_text, confidence, intent, f
             intent=intent,
             features_json=json.dumps(features),
             context_json=context_json,
+            cost_usd=cost_usd,
             status="auto_sent",
             created_at=now,
             resolved_at=now,
