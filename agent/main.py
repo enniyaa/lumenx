@@ -46,7 +46,7 @@ from pydantic import BaseModel
 app = FastAPI(
     title="LumenX Auto-Reply Agent",
     description="AI-powered customer support reply agent with human review queue.",
-    version="0.8.0",
+    version="0.9.0",
 )
 
 app.add_middleware(
@@ -174,6 +174,16 @@ def review_ui():
     return HTMLResponse(content="<h2>review.html not found</h2>", status_code=404)
 
 
+@app.get("/dashboard", response_class=HTMLResponse, include_in_schema=False)
+def dashboard_ui():
+    """Cost & performance dashboard."""
+    html_path = os.path.join(_static_dir, "dashboard.html")
+    if os.path.exists(html_path):
+        with open(html_path, encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h2>dashboard.html not found</h2>", status_code=404)
+
+
 # ── Agent config ──────────────────────────────────────────────────────────────
 
 class ConfigUpdate(BaseModel):
@@ -264,5 +274,7 @@ def poll_now():
 
 # ── Include routers ───────────────────────────────────────────────────────────
 
-from agent.routers.queue import router as queue_router
+from agent.routers.queue  import router as queue_router
+from agent.routers.stats  import router as stats_router
 app.include_router(queue_router)
+app.include_router(stats_router)

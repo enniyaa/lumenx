@@ -17,7 +17,7 @@
 | 6 | Feedback Log | ✅ COMPLETE |
 | 7 | Confidence Net (MLP) | ✅ COMPLETE |
 | 8 | Auto-Reply Router | ✅ COMPLETE |
-| 9 | Cost Dashboard | ⏳ PENDING |
+| 9 | Cost Dashboard | ✅ COMPLETE |
 | 10 | Hardening & Deployment | ⏳ PENDING |
 
 ---
@@ -239,17 +239,29 @@ exact_context_tokens        — token count from Phase 3 context builder
 
 ---
 
-## Phase 9 — Cost Dashboard ⏳ PENDING PERMISSION
+## Phase 9 — Cost Dashboard ✅ COMPLETE
 
 **Goal**: Full visibility into per-reply cost, token usage, and context windows.
 
 | Task | Status |
 |------|--------|
-| `GET /agent/stats?period=day\|week\|month` | ⏳ |
-| `GET /agent/replies?page=1&limit=50` — reply log table | ⏳ |
-| `GET /agent/replies/{id}/context` — full prompt viewer | ⏳ |
-| Dashboard: total cost, auto-sent vs reviewed split, avg confidence | ⏳ |
-| Reply log: timestamp, intent, model, tokens, cost, confidence, routed_to | ⏳ |
+| `GET /agent/stats?period=day\|week\|month` — KPIs + breakdowns | ✅ |
+| `GET /agent/replies?page&limit&intent&status&period` — paginated reply log | ✅ |
+| `GET /agent/replies/{id}/context` — full context + features + LLM call breakdown | ✅ |
+| `GET /dashboard` — React SPA served from static/dashboard.html | ✅ |
+| Dashboard: total cost, auto-sent vs reviewed pie, avg confidence, cost timeline chart | ✅ |
+| Reply log: time, thread, intent, confidence bar, status badge, cost | ✅ |
+| Context modal: customer msg, draft, MLP features, context window sections, cost table | ✅ |
+| intent filter click-through from breakdown cards | ✅ |
+| 30-second auto-refresh | ✅ |
+| Integration tests: 65/65 pass | ✅ |
+
+**Stats response includes**:
+- `total_replies`, `total_cost_usd`, `avg_cost_per_reply`
+- `auto_sent`, `queued`, `auto_sent_pct`, `avg_confidence`
+- `by_intent`: per-intent count + cost
+- `cost_by_model`: calls, cost, input/output/cache tokens per model
+- `cost_timeline`: hourly buckets (day) or daily buckets (week/month) for bar chart
 
 ---
 

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LumenX Agent — Cost Dashboard</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0f1117;
+    --surface:  #1a1d27;
+    --border:   #2d3142;
+    --text:     #e2e8f0;
+    --muted:    #8892a4;
+    --accent:   #6366f1;
+    --green:    #22c55e;
+    --yellow:   #f59e0b;
+    --red:      #ef4444;
+    --cyan:     #06b6d4;
+    --purple:   #a855f7;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif;
+         font-size: 14px; min-height: 100vh; }
+
+  /* ── Nav ── */
+  nav { background: var(--surface); border-bottom: 1px solid var(--border);
+        padding: 12px 24px; display: flex; align-items: center; gap: 24px; }
+  nav .logo { font-weight: 700; font-size: 16px; color: var(--accent); }
+  nav a { color: var(--muted); text-decoration: none; font-size: 13px; }
+  nav a:hover, nav a.active { color: var(--text); }
+
+  /* ── Layout ── */
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+  /* ── Period selector ── */
+  .period-bar { display: flex; gap: 8px; margin-bottom: 24px; }
+  .period-btn { padding: 6px 16px; border-radius: 6px; border: 1px solid var(--border);
+                background: var(--surface); color: var(--muted); cursor: pointer;
+                font-size: 13px; transition: all .15s; }
+  .period-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .period-btn:hover:not(.active) { border-color: var(--accent); color: var(--text); }
+
+  /* ── KPI cards ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+              gap: 16px; margin-bottom: 24px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+         padding: 20px; }
+  .kpi .label { font-size: 12px; color: var(--muted); text-transform: uppercase;
+                letter-spacing: .05em; margin-bottom: 8px; }
+  .kpi .value { font-size: 28px; font-weight: 700; }
+  .kpi .sub   { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .kpi.green .value { color: var(--green); }
+  .kpi.cyan  .value { color: var(--cyan);  }
+  .kpi.yellow .value { color: var(--yellow); }
+  .kpi.purple .value { color: var(--purple); }
+
+  /* ── Chart row ── */
+  .chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+  @media (max-width: 700px) { .chart-row { grid-template-columns: 1fr; } }
+  .chart-card { background: var(--surface); border: 1px solid var(--border);
+                border-radius: 12px; padding: 20px; }
+  .chart-card h3 { font-size: 13px; color: var(--muted); margin-bottom: 16px;
+                   text-transform: uppercase; letter-spacing: .05em; }
+  .chart-wrap { position: relative; }
+
+  /* ── Intent grid ── */
+  .intent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+                 gap: 12px; margin-bottom: 24px; }
+  .intent-card { background: var(--surface); border: 1px solid var(--border);
+                 border-radius: 10px; padding: 14px; }
+  .intent-card .name { font-size: 12px; color: var(--muted); text-transform: capitalize;
+                       margin-bottom: 6px; }
+  .intent-card .count { font-size: 22px; font-weight: 700; }
+  .intent-card .cost  { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Reply table ── */
+  .section-header { display: flex; align-items: center; justify-content: space-between;
+                    margin-bottom: 12px; }
+  .section-header h2 { font-size: 15px; font-weight: 600; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-select { background: var(--surface); border: 1px solid var(--border);
+                   color: var(--text); padding: 5px 10px; border-radius: 6px;
+                   font-size: 12px; cursor: pointer; }
+
+  .table-wrap { background: var(--surface); border: 1px solid var(--border);
+                border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600;
+             color: var(--muted); text-transform: uppercase; letter-spacing: .05em;
+             background: rgba(255,255,255,.03); border-bottom: 1px solid var(--border); }
+  tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(99,102,241,.08); }
+  td { padding: 10px 14px; font-size: 13px; }
+  .td-trunc { max-width: 220px; overflow: hidden; text-overflow: ellipsis;
+              white-space: nowrap; color: var(--muted); font-size: 12px; }
+
+  /* ── Badges ── */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px;
+           font-size: 11px; font-weight: 600; }
+  .badge-pending   { background:#3b4159; color:#8892a4; }
+  .badge-approved  { background:#14432a; color:#22c55e; }
+  .badge-edited    { background:#3b2a0a; color:#f59e0b; }
+  .badge-rejected  { background:#3b1515; color:#ef4444; }
+  .badge-auto_sent { background:#162040; color:#06b6d4; }
+
+  .intent-pill { display: inline-block; padding: 2px 8px; border-radius: 99px;
+                 font-size: 11px; font-weight: 500;
+                 background: rgba(99,102,241,.15); color: var(--accent); }
+
+  /* ── Confidence bar ── */
+  .conf-bar { display: flex; align-items: center; gap: 8px; }
+  .conf-track { flex: 1; height: 4px; border-radius: 2px; background: var(--border); }
+  .conf-fill  { height: 4px; border-radius: 2px; }
+  .conf-label { font-size: 11px; color: var(--muted); min-width: 36px; text-align: right; }
+
+  /* ── Pagination ── */
+  .pagination { display: flex; justify-content: flex-end; align-items: center;
+                gap: 8px; margin-top: 12px; }
+  .page-btn { padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px;
+              background: var(--surface); color: var(--muted); cursor: pointer;
+              font-size: 12px; }
+  .page-btn:disabled { opacity: .4; cursor: default; }
+  .page-btn:not(:disabled):hover { border-color: var(--accent); color: var(--text); }
+  .page-info { font-size: 12px; color: var(--muted); }
+
+  /* ── Modal ── */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7);
+             display: flex; align-items: center; justify-content: center;
+             z-index: 100; padding: 16px; }
+  .modal { background: var(--surface); border: 1px solid var(--border);
+           border-radius: 14px; width: 100%; max-width: 760px;
+           max-height: 90vh; display: flex; flex-direction: column; }
+  .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border);
+                  display: flex; justify-content: space-between; align-items: flex-start; }
+  .modal-header h2 { font-size: 15px; font-weight: 600; }
+  .modal-header .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .close-btn { background: none; border: none; color: var(--muted); cursor: pointer;
+               font-size: 18px; line-height: 1; }
+  .modal-body { flex: 1; overflow-y: auto; padding: 20px; display: flex;
+                flex-direction: column; gap: 16px; }
+  .modal-section { }
+  .modal-section h4 { font-size: 11px; color: var(--muted); text-transform: uppercase;
+                      letter-spacing: .05em; margin-bottom: 8px; }
+  .msg-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+             padding: 12px 14px; font-size: 13px; line-height: 1.6;
+             white-space: pre-wrap; word-break: break-word; }
+  .feature-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .feature-chip { background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+                  padding: 4px 10px; font-size: 12px; }
+  .feature-chip .fname { color: var(--muted); }
+  .feature-chip .fval  { color: var(--text); margin-left: 4px; font-weight: 600; }
+  .ctx-section { margin-bottom: 12px; }
+  .ctx-section h5 { font-size: 11px; color: var(--accent); text-transform: uppercase;
+                    letter-spacing: .05em; margin-bottom: 6px; }
+  .ctx-box { background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+             padding: 10px 12px; font-size: 12px; color: var(--muted);
+             white-space: pre-wrap; word-break: break-word;
+             max-height: 160px; overflow-y: auto; font-family: monospace; }
+  .cost-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .cost-table th { color: var(--muted); text-align: left; padding: 4px 8px;
+                   border-bottom: 1px solid var(--border); }
+  .cost-table td { padding: 4px 8px; }
+  .cost-table tr:hover td { background: rgba(255,255,255,.03); }
+
+  /* ── Loading / empty states ── */
+  .loading { text-align: center; padding: 40px; color: var(--muted); }
+  .empty   { text-align: center; padding: 40px; color: var(--muted); }
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border);
+             border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .refresh-btn { background: none; border: 1px solid var(--border); border-radius: 6px;
+                 color: var(--muted); padding: 5px 12px; cursor: pointer; font-size: 12px; }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--text); }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">LumenX Agent</span>
+  <a href="/review">Review Queue</a>
+  <a href="/dashboard" class="active">Dashboard</a>
+  <a href="/docs" target="_blank">API Docs</a>
+</nav>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ── Colours ────────────────────────────────────────────────────────────────
+
+const INTENT_COLORS = {
+  greeting:  '#6366f1',
+  pricing:   '#22c55e',
+  technical: '#f59e0b',
+  refund:    '#ef4444',
+  other:     '#8892a4',
+};
+
+const STATUS_BADGE = {
+  pending:   'badge-pending',
+  approved:  'badge-approved',
+  edited:    'badge-edited',
+  rejected:  'badge-rejected',
+  auto_sent: 'badge-auto_sent',
+};
+
+function confColor(c) {
+  if (c >= 0.90) return '#22c55e';
+  if (c >= 0.70) return '#f59e0b';
+  return '#ef4444';
+}
+
+function fmtCost(v) {
+  if (!v && v !== 0) return '—';
+  return `$${Number(v).toFixed(5)}`;
+}
+
+function fmtDate(s) {
+  if (!s) return '—';
+  return new Date(s).toLocaleString(undefined, {
+    month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+}
+
+// ── API helpers ─────────────────────────────────────────────────────────────
+
+async function api(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+// ── Cost timeline chart ──────────────────────────────────────────────────────
+
+function CostChart({ data, period }) {
+  const ref = useRef(null);
+  const chart = useRef(null);
+
+  useEffect(() => {
+    if (!ref.current || !data?.length) return;
+    if (chart.current) chart.current.destroy();
+
+    const labels = data.map(d => {
+      const s = d.bucket;
+      return period === 'day' ? s.slice(11, 16) : s.slice(5);   // HH:00 or MM-DD
+    });
+    const values = data.map(d => Number(d.cost || 0));
+
+    chart.current = new Chart(ref.current, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Cost (USD)',
+          data: values,
+          backgroundColor: 'rgba(99,102,241,.6)',
+          borderColor: '#6366f1',
+          borderWidth: 1,
+          borderRadius: 3,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => `$${ctx.parsed.y.toFixed(5)}` },
+          },
+        },
+        scales: {
+          x: {
+            ticks: { color: '#8892a4', font: { size: 11 } },
+            grid:  { color: '#2d3142' },
+          },
+          y: {
+            ticks: {
+              color: '#8892a4', font: { size: 11 },
+              callback: v => `$${v.toFixed(4)}`,
+            },
+            grid: { color: '#2d3142' },
+          },
+        },
+      },
+    });
+    return () => { if (chart.current) chart.current.destroy(); };
+  }, [data, period]);
+
+  if (!data?.length) return <p style={{color:'var(--muted)',fontSize:12,textAlign:'center',padding:'20px 0'}}>No cost data for this period</p>;
+  return <canvas ref={ref} style={{maxHeight:180}} />;
+}
+
+// ── Auto-sent doughnut ───────────────────────────────────────────────────────
+
+function RoutingChart({ autoSent, queued }) {
+  const ref = useRef(null);
+  const chart = useRef(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    if (chart.current) chart.current.destroy();
+    const total = autoSent + queued;
+    if (!total) return;
+
+    chart.current = new Chart(ref.current, {
+      type: 'doughnut',
+      data: {
+        labels: ['Auto-sent', 'Reviewed'],
+        datasets: [{
+          data: [autoSent, queued],
+          backgroundColor: ['#06b6d4', '#6366f1'],
+          borderWidth: 0,
+        }],
+      },
+      options: {
+        responsive: true,
+        cutout: '72%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#8892a4', font: { size: 11 }, boxWidth: 10 },
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => `${ctx.label}: ${ctx.parsed} (${Math.round(ctx.parsed/total*100)}%)`,
+            },
+          },
+        },
+      },
+    });
+    return () => { if (chart.current) chart.current.destroy(); };
+  }, [autoSent, queued]);
+
+  const total = autoSent + queued;
+  if (!total) return <p style={{color:'var(--muted)',fontSize:12,textAlign:'center',padding:'20px 0'}}>No reply data</p>;
+  return <canvas ref={ref} style={{maxHeight:180}} />;
+}
+
+// ── Context modal ────────────────────────────────────────────────────────────
+
+function ContextModal({ itemId, onClose }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api(`/agent/replies/${itemId}/context`)
+      .then(setData)
+      .catch(e => console.error(e))
+      .finally(() => setLoading(false));
+  }, [itemId]);
+
+  const ctx = data?.context || {};
+  const sections = [
+    { key: 'system_prompt',   label: 'System Prompt' },
+    { key: 'cacheable_str',   label: 'Cached Block (Wiki + Summary + Feedback)' },
+    { key: 'dynamic_str',     label: 'Dynamic Block (Thread + Message)' },
+  ];
+
+  return (
+    <div className="overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="modal">
+        <div className="modal-header">
+          <div>
+            <h2>Reply #{itemId} — Context Viewer</h2>
+            {data && (
+              <div className="meta">
+                Thread: {data.thread_id} &nbsp;·&nbsp;
+                Intent: <span className="intent-pill">{data.intent}</span> &nbsp;·&nbsp;
+                Status: <span className={`badge ${STATUS_BADGE[data.status]||''}`}>{data.status}</span> &nbsp;·&nbsp;
+                {fmtDate(data.created_at)}
+              </div>
+            )}
+          </div>
+          <button className="close-btn" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="modal-body">
+          {loading && <div className="loading"><div className="spinner" /></div>}
+
+          {data && <>
+            {/* Customer message */}
+            <div className="modal-section">
+              <h4>Customer Message</h4>
+              <div className="msg-box">{data.customer_msg || '—'}</div>
+            </div>
+
+            {/* Draft */}
+            <div className="modal-section">
+              <h4>Agent Draft</h4>
+              <div className="msg-box" style={{color:'#a5b4fc'}}>{data.draft_text || '—'}</div>
+            </div>
+
+            {/* Confidence + cost */}
+            <div className="modal-section" style={{display:'flex',gap:32,alignItems:'center',flexWrap:'wrap'}}>
+              <div>
+                <h4 style={{marginBottom:6}}>Confidence</h4>
+                {data.confidence != null ? (
+                  <div className="conf-bar">
+                    <div className="conf-track">
+                      <div className="conf-fill" style={{
+                        width: `${(data.confidence||0)*100}%`,
+                        background: confColor(data.confidence)
+                      }} />
+                    </div>
+                    <span className="conf-label" style={{color: confColor(data.confidence)}}>
+                      {(data.confidence*100).toFixed(1)}%
+                    </span>
+                  </div>
+                ) : <span style={{color:'var(--muted)'}}>—</span>}
+              </div>
+              <div>
+                <h4 style={{marginBottom:6}}>Draft Cost</h4>
+                <span style={{fontWeight:700,color:'var(--yellow)'}}>{fmtCost(data.cost_usd)}</span>
+              </div>
+            </div>
+
+            {/* MLP features */}
+            {Object.keys(data.features || {}).length > 0 && (
+              <div className="modal-section">
+                <h4>Confidence Net Features</h4>
+                <div className="feature-grid">
+                  {Object.entries(data.features).map(([k, v]) => (
+                    <div className="feature-chip" key={k}>
+                      <span className="fname">{k}</span>
+                      <span className="fval">{Number(v).toFixed(3)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Context sections */}
+            {sections.some(s => ctx[s.key]) && (
+              <div className="modal-section">
+                <h4>Context Window</h4>
+                {sections.map(s => ctx[s.key] ? (
+                  <div className="ctx-section" key={s.key}>
+                    <h5>{s.label}</h5>
+                    <div className="ctx-box">{ctx[s.key]}</div>
+                  </div>
+                ) : null)}
+                {ctx.exact_tokens && (
+                  <p style={{fontSize:11,color:'var(--muted)',marginTop:8}}>
+                    Total tokens: {ctx.exact_tokens}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Cost detail per LLM call */}
+            {data.cost_detail?.length > 0 && (
+              <div className="modal-section">
+                <h4>LLM Call Breakdown</h4>
+                <table className="cost-table">
+                  <thead>
+                    <tr>
+                      <th>Task</th><th>Model</th><th>In</th><th>Out</th>
+                      <th>Cache Read</th><th>Cache Write</th><th>Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.cost_detail.map((r, i) => (
+                      <tr key={i}>
+                        <td>{r.task_type}</td>
+                        <td style={{color:'var(--muted)'}}>{r.model?.split('-').slice(-2).join('-')}</td>
+                        <td>{r.input_tokens?.toLocaleString()}</td>
+                        <td>{r.output_tokens?.toLocaleString()}</td>
+                        <td style={{color:'var(--green)'}}>{r.cache_read_input_tokens?.toLocaleString()}</td>
+                        <td style={{color:'var(--yellow)'}}>{r.cache_creation_input_tokens?.toLocaleString()}</td>
+                        <td style={{color:'var(--yellow)',fontWeight:700}}>{fmtCost(r.cost_usd)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Reply table row ──────────────────────────────────────────────────────────
+
+function ReplyRow({ item, onClick }) {
+  return (
+    <tr onClick={() => onClick(item.id)}>
+      <td style={{color:'var(--muted)',fontSize:12}}>{fmtDate(item.created_at)}</td>
+      <td>
+        <span style={{color:'var(--accent)',fontSize:12,fontFamily:'monospace'}}>
+          {item.thread_id?.slice(0,8)}…
+        </span>
+      </td>
+      <td>
+        <span className="intent-pill" style={{
+          background: (INTENT_COLORS[item.intent]||'#8892a4')+'22',
+          color: INTENT_COLORS[item.intent]||'#8892a4'
+        }}>
+          {item.intent||'—'}
+        </span>
+      </td>
+      <td>
+        {item.confidence != null ? (
+          <div className="conf-bar">
+            <div className="conf-track">
+              <div className="conf-fill" style={{
+                width:`${(item.confidence||0)*100}%`,
+                background: confColor(item.confidence)
+              }}/>
+            </div>
+            <span className="conf-label">{(item.confidence*100).toFixed(0)}%</span>
+          </div>
+        ) : <span style={{color:'var(--muted)'}}>—</span>}
+      </td>
+      <td><span className={`badge ${STATUS_BADGE[item.status]||''}`}>{item.status}</span></td>
+      <td style={{color:'var(--yellow)',fontWeight:600}}>{fmtCost(item.cost_usd)}</td>
+      <td className="td-trunc">{item.customer_msg||'—'}</td>
+    </tr>
+  );
+}
+
+// ── Main App ─────────────────────────────────────────────────────────────────
+
+function App() {
+  const [period, setPeriod]       = useState('day');
+  const [stats, setStats]         = useState(null);
+  const [statsLoading, setStatsL] = useState(true);
+  const [replies, setReplies]     = useState(null);
+  const [repLoading,  setRepL]    = useState(true);
+  const [page, setPage]           = useState(1);
+  const [filterIntent, setFI]     = useState('');
+  const [filterStatus, setFS]     = useState('');
+  const [modalId, setModalId]     = useState(null);
+  const LIMIT = 50;
+
+  const loadStats = useCallback(() => {
+    setStatsL(true);
+    api(`/agent/stats?period=${period}`)
+      .then(setStats)
+      .catch(console.error)
+      .finally(() => setStatsL(false));
+  }, [period]);
+
+  const loadReplies = useCallback(() => {
+    setRepL(true);
+    let url = `/agent/replies?page=${page}&limit=${LIMIT}&period=${period}`;
+    if (filterIntent) url += `&intent=${filterIntent}`;
+    if (filterStatus) url += `&status=${filterStatus}`;
+    api(url)
+      .then(setReplies)
+      .catch(console.error)
+      .finally(() => setRepL(false));
+  }, [page, period, filterIntent, filterStatus]);
+
+  useEffect(() => { loadStats(); }, [loadStats]);
+  useEffect(() => { setPage(1); }, [period, filterIntent, filterStatus]);
+  useEffect(() => { loadReplies(); }, [loadReplies]);
+
+  // Auto-refresh every 30 s
+  useEffect(() => {
+    const t = setInterval(() => { loadStats(); loadReplies(); }, 30_000);
+    return () => clearInterval(t);
+  }, [loadStats, loadReplies]);
+
+  const s = stats || {};
+  const totalReplies = s.total_replies || 0;
+  const totalPages   = replies ? Math.ceil(replies.total / LIMIT) : 1;
+
+  return (
+    <div className="container">
+
+      {/* Period selector */}
+      <div className="period-bar" style={{justifyContent:'space-between',alignItems:'center'}}>
+        <div style={{display:'flex',gap:8}}>
+          {['day','week','month'].map(p => (
+            <button key={p} className={`period-btn${period===p?' active':''}`}
+                    onClick={() => setPeriod(p)}>
+              {p.charAt(0).toUpperCase()+p.slice(1)}
+            </button>
+          ))}
+        </div>
+        <button className="refresh-btn" onClick={() => { loadStats(); loadReplies(); }}>
+          ↻ Refresh
+        </button>
+      </div>
+
+      {/* KPI cards */}
+      <div className="kpi-grid">
+        <div className="kpi yellow">
+          <div className="label">Total Cost</div>
+          <div className="value">{statsLoading ? '…' : fmtCost(s.total_cost_usd)}</div>
+          <div className="sub">avg {fmtCost(s.avg_cost_per_reply)}/reply</div>
+        </div>
+        <div className="kpi cyan">
+          <div className="label">Total Replies</div>
+          <div className="value">{statsLoading ? '…' : totalReplies.toLocaleString()}</div>
+          <div className="sub">this {period}</div>
+        </div>
+        <div className="kpi green">
+          <div className="label">Auto-sent</div>
+          <div className="value">{statsLoading ? '…' : `${s.auto_sent_pct??0}%`}</div>
+          <div className="sub">{s.auto_sent||0} of {totalReplies}</div>
+        </div>
+        <div className="kpi purple">
+          <div className="label">Avg Confidence</div>
+          <div className="value">{statsLoading ? '…' : `${((s.avg_confidence||0)*100).toFixed(1)}%`}</div>
+          <div className="sub">across {totalReplies} replies</div>
+        </div>
+      </div>
+
+      {/* Charts */}
+      <div className="chart-row">
+        <div className="chart-card">
+          <h3>Cost over time ({period})</h3>
+          <div className="chart-wrap">
+            {statsLoading
+              ? <div className="loading"><div className="spinner"/></div>
+              : <CostChart data={s.cost_timeline} period={period} />
+            }
+          </div>
+        </div>
+        <div className="chart-card">
+          <h3>Routing split</h3>
+          <div className="chart-wrap">
+            {statsLoading
+              ? <div className="loading"><div className="spinner"/></div>
+              : <RoutingChart autoSent={s.auto_sent||0} queued={s.queued||0} />
+            }
+          </div>
+        </div>
+      </div>
+
+      {/* Intent breakdown */}
+      {!statsLoading && Object.keys(s.by_intent||{}).length > 0 && (
+        <>
+          <h2 style={{fontSize:14,fontWeight:600,marginBottom:12}}>By Intent</h2>
+          <div className="intent-grid" style={{marginBottom:24}}>
+            {Object.entries(s.by_intent).sort((a,b)=>b[1].count-a[1].count).map(([k,v]) => (
+              <div className="intent-card" key={k}
+                   onClick={() => { setFilterIntent(filterIntent===k ? '' : k); }}
+                   style={{cursor:'pointer',borderColor: filterIntent===k ? INTENT_COLORS[k]||'var(--accent)' : 'var(--border)'}}>
+                <div className="name">{k}</div>
+                <div className="count" style={{color: INTENT_COLORS[k]||'var(--text)'}}>
+                  {v.count}
+                </div>
+                <div className="cost">{fmtCost(v.cost)}</div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Model cost table */}
+      {!statsLoading && Object.keys(s.cost_by_model||{}).length > 0 && (
+        <div className="table-wrap" style={{marginBottom:24}}>
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th><th>Calls</th><th>Input Tokens</th>
+                <th>Output Tokens</th><th>Cache Read</th><th>Total Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(s.cost_by_model).map(([m,v]) => (
+                <tr key={m}>
+                  <td style={{fontFamily:'monospace',fontSize:12}}>{m}</td>
+                  <td>{v.calls?.toLocaleString()}</td>
+                  <td>{v.input_tokens?.toLocaleString()}</td>
+                  <td>{v.output_tokens?.toLocaleString()}</td>
+                  <td style={{color:'var(--green)'}}>{v.cache_read_tokens?.toLocaleString()}</td>
+                  <td style={{color:'var(--yellow)',fontWeight:700}}>{fmtCost(v.cost)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Reply log */}
+      <div className="section-header">
+        <h2>Reply Log</h2>
+        <div className="filters">
+          <select className="filter-select" value={filterIntent}
+                  onChange={e => setFilterIntent(e.target.value)}>
+            <option value="">All intents</option>
+            {['greeting','pricing','technical','refund','other'].map(i =>
+              <option key={i} value={i}>{i}</option>
+            )}
+          </select>
+          <select className="filter-select" value={filterStatus}
+                  onChange={e => setFS(e.target.value)}>
+            <option value="">All statuses</option>
+            {['pending','approved','edited','rejected','auto_sent'].map(s =>
+              <option key={s} value={s}>{s}</option>
+            )}
+          </select>
+          {(filterIntent || filterStatus) && (
+            <button className="refresh-btn" onClick={() => { setFI(''); setFS(''); }}>
+              Clear filters
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th><th>Thread</th><th>Intent</th>
+              <th>Confidence</th><th>Status</th><th>Cost</th>
+              <th>Customer Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {repLoading ? (
+              <tr><td colSpan={7} className="loading"><div className="spinner"/></td></tr>
+            ) : replies?.items?.length === 0 ? (
+              <tr><td colSpan={7} className="empty">No replies for this period.</td></tr>
+            ) : (
+              replies?.items?.map(item => (
+                <ReplyRow key={item.id} item={item} onClick={setModalId} />
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {replies && replies.total > LIMIT && (
+        <div className="pagination">
+          <span className="page-info">
+            {replies.total.toLocaleString()} replies · page {page} of {totalPages}
+          </span>
+          <button className="page-btn" disabled={page <= 1}
+                  onClick={() => setPage(p => p-1)}>← Prev</button>
+          <button className="page-btn" disabled={page >= totalPages}
+                  onClick={() => setPage(p => p+1)}>Next →</button>
+        </div>
+      )}
+
+      {/* Context modal */}
+      {modalId != null && (
+        <ContextModal itemId={modalId} onClose={() => setModalId(null)} />
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
