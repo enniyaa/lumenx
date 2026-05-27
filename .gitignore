@@ -19,6 +19,10 @@ data/
 models/*.pkl
 models/*.joblib
 
+# Server log files
+server_stdout.txt
+server_stderr.txt
+
 # IDE
 .vscode/
 .idea/
