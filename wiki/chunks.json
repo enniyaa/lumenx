@@ -1,0 +1,764 @@
+[
+  {
+    "product_id": "emailpilot",
+    "product_name": "EmailPilot",
+    "section": "overview",
+    "text": "[EmailPilot — overview]\nEmailPilot watches your inbox and drafts replies that sound like you. It learns your tone from past sent messages and pulls context from attached files. You stay in control: every reply lands as a draft until you hit send. AI drafting for your inbox."
+  },
+  {
+    "product_id": "emailpilot",
+    "product_name": "EmailPilot",
+    "section": "target_audience",
+    "text": "[EmailPilot — target_audience]\nDesigned for: Founders, consultants, and customer-facing roles drowning in email."
+  },
+  {
+    "product_id": "emailpilot",
+    "product_name": "EmailPilot",
+    "section": "features",
+    "text": "[EmailPilot — features]\n• Tone-matched draft replies\n• Attachment-aware context\n• Per-thread summary\n• Snooze and follow-up reminders\n• Works with Gmail and Outlook"
+  },
+  {
+    "product_id": "emailpilot",
+    "product_name": "EmailPilot",
+    "section": "pricing",
+    "text": "[EmailPilot — pricing]\n{\"starter\": {\"monthly_usd\": 9, \"seats\": 1, \"drafts_per_month\": 200}, \"pro\": {\"monthly_usd\": 19, \"seats\": 1, \"drafts_per_month\": 2000}, \"team\": {\"monthly_usd\": 14, \"seats\": \"per seat, min 5\", \"drafts_per_month\": \"unlimited\"}}"
+  },
+  {
+    "product_id": "emailpilot",
+    "product_name": "EmailPilot",
+    "section": "refund_policy",
+    "text": "[EmailPilot — refund_policy]\nRefund: Full refund within 14 days of first purchase.\nCancellation: Cancel anytime. Plan remains active until the end of the current billing period."
+  },
+  {
+    "product_id": "emailpilot",
+    "product_name": "EmailPilot",
+    "section": "integrations",
+    "text": "[EmailPilot — integrations]\nIntegrates with: Gmail, Outlook, Google Drive, Notion"
+  },
+  {
+    "product_id": "emailpilot",
+    "product_name": "EmailPilot",
+    "section": "additional_info",
+    "text": "[EmailPilot — additional_info]\nCategory: Communication"
+  },
+  {
+    "product_id": "invoiceflow",
+    "product_name": "InvoiceFlow",
+    "section": "overview",
+    "text": "[InvoiceFlow — overview]\nInvoiceFlow turns a one-line description into a polished invoice in seconds. Automatic reminders go out on day 3, 7, and 14 after due date. Payments arrive directly into your bank through Stripe or Razorpay. Invoices that get paid faster."
+  },
+  {
+    "product_id": "invoiceflow",
+    "product_name": "InvoiceFlow",
+    "section": "target_audience",
+    "text": "[InvoiceFlow — target_audience]\nDesigned for: Freelancers, agencies, and small service businesses."
+  },
+  {
+    "product_id": "invoiceflow",
+    "product_name": "InvoiceFlow",
+    "section": "features",
+    "text": "[InvoiceFlow — features]\n• Branded invoice templates\n• Multi-currency support\n• Automatic late reminders\n• Stripe and Razorpay payouts\n• GST and VAT compliant"
+  },
+  {
+    "product_id": "invoiceflow",
+    "product_name": "InvoiceFlow",
+    "section": "pricing",
+    "text": "[InvoiceFlow — pricing]\n{\"starter\": {\"monthly_usd\": 7, \"invoices_per_month\": 25}, \"pro\": {\"monthly_usd\": 15, \"invoices_per_month\": 200}, \"team\": {\"monthly_usd\": 39, \"invoices_per_month\": \"unlimited\", \"seats\": 10}}"
+  },
+  {
+    "product_id": "invoiceflow",
+    "product_name": "InvoiceFlow",
+    "section": "refund_policy",
+    "text": "[InvoiceFlow — refund_policy]\nRefund: Pro-rated refund within 14 days of first purchase.\nCancellation: Cancel anytime. Your data is exportable as CSV for 30 days after cancellation."
+  },
+  {
+    "product_id": "invoiceflow",
+    "product_name": "InvoiceFlow",
+    "section": "integrations",
+    "text": "[InvoiceFlow — integrations]\nIntegrates with: Stripe, Razorpay, QuickBooks, Zoho Books"
+  },
+  {
+    "product_id": "taskgrid",
+    "product_name": "TaskGrid",
+    "section": "overview",
+    "text": "[TaskGrid — overview]\nTaskGrid is a task tracker that feels like a spreadsheet but behaves like a project tool. Group, filter, and pivot tasks by anyone, due date, or custom tag. Built for teams that find Jira too heavy and a checklist too thin. Spreadsheet-fast task tracking."
+  },
+  {
+    "product_id": "taskgrid",
+    "product_name": "TaskGrid",
+    "section": "target_audience",
+    "text": "[TaskGrid — target_audience]\nDesigned for: Small ops teams, founders, and operations leads."
+  },
+  {
+    "product_id": "taskgrid",
+    "product_name": "TaskGrid",
+    "section": "features",
+    "text": "[TaskGrid — features]\n• Spreadsheet-style task grid\n• Custom fields and tags\n• Saved views per teammate\n• CSV import and export\n• Slack and email digests"
+  },
+  {
+    "product_id": "taskgrid",
+    "product_name": "TaskGrid",
+    "section": "pricing",
+    "text": "[TaskGrid — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"seats\": 3, \"tasks_per_workspace\": 200}, \"pro\": {\"monthly_usd\": 9, \"seats\": \"per seat\", \"tasks_per_workspace\": \"unlimited\"}, \"team\": {\"monthly_usd\": 7, \"seats\": \"per seat, min 10\", \"tasks_per_workspace\": \"unlimited\"}}"
+  },
+  {
+    "product_id": "taskgrid",
+    "product_name": "TaskGrid",
+    "section": "refund_policy",
+    "text": "[TaskGrid — refund_policy]\nRefund: Refund within 14 days for paid plans.\nCancellation: Cancel anytime. Free plan stays available forever for solo workspaces."
+  },
+  {
+    "product_id": "taskgrid",
+    "product_name": "TaskGrid",
+    "section": "integrations",
+    "text": "[TaskGrid — integrations]\nIntegrates with: Slack, Google Calendar, GitHub, Linear"
+  },
+  {
+    "product_id": "taskgrid",
+    "product_name": "TaskGrid",
+    "section": "additional_info",
+    "text": "[TaskGrid — additional_info]\nCategory: Productivity"
+  },
+  {
+    "product_id": "formcraft",
+    "product_name": "FormCraft",
+    "section": "overview",
+    "text": "[FormCraft — overview]\nFormCraft helps you build conversational forms that double completion rates. Logic jumps, hidden fields, and partial response capture come standard. Submissions land in a clean dashboard or any webhook you point at. Forms that don't feel like forms."
+  },
+  {
+    "product_id": "formcraft",
+    "product_name": "FormCraft",
+    "section": "target_audience",
+    "text": "[FormCraft — target_audience]\nDesigned for: Marketers, researchers, and customer success teams."
+  },
+  {
+    "product_id": "formcraft",
+    "product_name": "FormCraft",
+    "section": "features",
+    "text": "[FormCraft — features]\n• Conversational and classic layouts\n• Logic jumps and hidden fields\n• Partial response capture\n• File uploads up to 50 MB\n• Webhook and Zapier output"
+  },
+  {
+    "product_id": "formcraft",
+    "product_name": "FormCraft",
+    "section": "pricing",
+    "text": "[FormCraft — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"forms\": 3, \"responses_per_month\": 100}, \"pro\": {\"monthly_usd\": 19, \"forms\": \"unlimited\", \"responses_per_month\": 5000}, \"team\": {\"monthly_usd\": 49, \"forms\": \"unlimited\", \"responses_per_month\": 50000}}"
+  },
+  {
+    "product_id": "formcraft",
+    "product_name": "FormCraft",
+    "section": "refund_policy",
+    "text": "[FormCraft — refund_policy]\nRefund: Refund within 14 days of first paid purchase.\nCancellation: Cancel anytime. Free plan stays active."
+  },
+  {
+    "product_id": "formcraft",
+    "product_name": "FormCraft",
+    "section": "integrations",
+    "text": "[FormCraft — integrations]\nIntegrates with: Zapier, Webhooks, Google Sheets, HubSpot"
+  },
+  {
+    "product_id": "formcraft",
+    "product_name": "FormCraft",
+    "section": "additional_info",
+    "text": "[FormCraft — additional_info]\nCategory: Data Collection"
+  },
+  {
+    "product_id": "calendarsync",
+    "product_name": "CalendarSync",
+    "section": "overview",
+    "text": "[CalendarSync — overview]\nCalendarSync gives every teammate a polished booking link with built-in buffer time and meeting caps. Connect Google or Microsoft calendars and let attendees pick from real free slots. Round-robin and collective scheduling are built in. Booking links that respect your day."
+  },
+  {
+    "product_id": "calendarsync",
+    "product_name": "CalendarSync",
+    "section": "target_audience",
+    "text": "[CalendarSync — target_audience]\nDesigned for: Sales, recruiting, and any role that lives in meetings."
+  },
+  {
+    "product_id": "calendarsync",
+    "product_name": "CalendarSync",
+    "section": "features",
+    "text": "[CalendarSync — features]\n• Personal booking pages\n• Round-robin and collective slots\n• Daily meeting cap and buffer time\n• Zoom, Meet, and Teams links\n• Two-way Google and Microsoft sync"
+  },
+  {
+    "product_id": "calendarsync",
+    "product_name": "CalendarSync",
+    "section": "pricing",
+    "text": "[CalendarSync — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"event_types\": 1}, \"pro\": {\"monthly_usd\": 12, \"event_types\": \"unlimited\"}, \"team\": {\"monthly_usd\": 10, \"seats\": \"per seat, min 5\", \"event_types\": \"unlimited\"}}"
+  },
+  {
+    "product_id": "calendarsync",
+    "product_name": "CalendarSync",
+    "section": "refund_policy",
+    "text": "[CalendarSync — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime."
+  },
+  {
+    "product_id": "calendarsync",
+    "product_name": "CalendarSync",
+    "section": "integrations",
+    "text": "[CalendarSync — integrations]\nIntegrates with: Google Calendar, Microsoft 365, Zoom, Google Meet, Microsoft Teams"
+  },
+  {
+    "product_id": "notehub",
+    "product_name": "NoteHub",
+    "section": "overview",
+    "text": "[NoteHub — overview]\nNoteHub is a markdown-first notes app with backlinks and a graph view. Pages cross-reference automatically as you type. Search runs locally so it stays fast even with 10,000 notes. Notes you can actually find later."
+  },
+  {
+    "product_id": "notehub",
+    "product_name": "NoteHub",
+    "section": "target_audience",
+    "text": "[NoteHub — target_audience]\nDesigned for: Researchers, writers, and engineering teams."
+  },
+  {
+    "product_id": "notehub",
+    "product_name": "NoteHub",
+    "section": "features",
+    "text": "[NoteHub — features]\n• Markdown editor with live preview\n• Backlinks and graph view\n• Local-first search\n• Daily journal template\n• End-to-end encrypted sync"
+  },
+  {
+    "product_id": "notehub",
+    "product_name": "NoteHub",
+    "section": "pricing",
+    "text": "[NoteHub — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"notes\": 200, \"devices\": 2}, \"pro\": {\"monthly_usd\": 6, \"notes\": \"unlimited\", \"devices\": \"unlimited\"}, \"team\": {\"monthly_usd\": 9, \"seats\": \"per seat\", \"shared_spaces\": \"unlimited\"}}"
+  },
+  {
+    "product_id": "notehub",
+    "product_name": "NoteHub",
+    "section": "refund_policy",
+    "text": "[NoteHub — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime. Notes remain readable offline forever."
+  },
+  {
+    "product_id": "notehub",
+    "product_name": "NoteHub",
+    "section": "integrations",
+    "text": "[NoteHub — integrations]\nIntegrates with: Obsidian export, Apple Notes import, Markdown export"
+  },
+  {
+    "product_id": "chatrelay",
+    "product_name": "ChatRelay",
+    "section": "overview",
+    "text": "[ChatRelay — overview]\nChatRelay is a website chat widget and inbox for small teams. Route by topic, set business hours, and auto-reply when nobody is online. Connect to email, WhatsApp, and Slack so no message slips through. Customer chat that doesn't need a war room."
+  },
+  {
+    "product_id": "chatrelay",
+    "product_name": "ChatRelay",
+    "section": "target_audience",
+    "text": "[ChatRelay — target_audience]\nDesigned for: Small support teams, e-commerce shops, SaaS startups."
+  },
+  {
+    "product_id": "chatrelay",
+    "product_name": "ChatRelay",
+    "section": "features",
+    "text": "[ChatRelay — features]\n• Embeddable chat widget\n• Multi-channel inbox\n• Topic routing\n• Business-hours auto-reply\n• Saved replies and shortcuts"
+  },
+  {
+    "product_id": "chatrelay",
+    "product_name": "ChatRelay",
+    "section": "pricing",
+    "text": "[ChatRelay — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"seats\": 1, \"conversations_per_month\": 100}, \"pro\": {\"monthly_usd\": 25, \"seats\": 5, \"conversations_per_month\": 2000}, \"team\": {\"monthly_usd\": 69, \"seats\": 20, \"conversations_per_month\": \"unlimited\"}}"
+  },
+  {
+    "product_id": "chatrelay",
+    "product_name": "ChatRelay",
+    "section": "refund_policy",
+    "text": "[ChatRelay — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime. Inbox history exports as JSON."
+  },
+  {
+    "product_id": "chatrelay",
+    "product_name": "ChatRelay",
+    "section": "integrations",
+    "text": "[ChatRelay — integrations]\nIntegrates with: Slack, WhatsApp Business, Email, Zapier"
+  },
+  {
+    "product_id": "chatrelay",
+    "product_name": "ChatRelay",
+    "section": "additional_info",
+    "text": "[ChatRelay — additional_info]\nCategory: Customer Support"
+  },
+  {
+    "product_id": "signpath",
+    "product_name": "SignPath",
+    "section": "overview",
+    "text": "[SignPath — overview]\nSignPath collects legally valid e-signatures with a flat monthly fee. Drag fields onto a PDF, pick signers, and track who has opened, viewed, and signed. Audit trail is included by default. E-signatures without the per-document tax."
+  },
+  {
+    "product_id": "signpath",
+    "product_name": "SignPath",
+    "section": "target_audience",
+    "text": "[SignPath — target_audience]\nDesigned for: Sales ops, HR, and legal in small companies."
+  },
+  {
+    "product_id": "signpath",
+    "product_name": "SignPath",
+    "section": "features",
+    "text": "[SignPath — features]\n• Drag-to-place signature fields\n• Sequential and parallel signers\n• Audit trail with IP and timestamp\n• Bulk send to up to 200 recipients\n• Templates for common contracts"
+  },
+  {
+    "product_id": "signpath",
+    "product_name": "SignPath",
+    "section": "pricing",
+    "text": "[SignPath — pricing]\n{\"starter\": {\"monthly_usd\": 12, \"documents_per_month\": 20}, \"pro\": {\"monthly_usd\": 29, \"documents_per_month\": 200}, \"team\": {\"monthly_usd\": 79, \"documents_per_month\": \"unlimited\", \"seats\": 10}}"
+  },
+  {
+    "product_id": "signpath",
+    "product_name": "SignPath",
+    "section": "refund_policy",
+    "text": "[SignPath — refund_policy]\nRefund: 14 day refund window for first purchase.\nCancellation: Cancel anytime. Signed PDFs are yours and downloadable forever."
+  },
+  {
+    "product_id": "signpath",
+    "product_name": "SignPath",
+    "section": "integrations",
+    "text": "[SignPath — integrations]\nIntegrates with: Google Drive, Dropbox, Salesforce, HubSpot"
+  },
+  {
+    "product_id": "pollwise",
+    "product_name": "PollWise",
+    "section": "overview",
+    "text": "[PollWise — overview]\nPollWise is a focused tool for short surveys and quick polls. Distribute by link, email, or QR code. Get instant cross-tabs and CSV exports without spreadsheet wrangling. Run a poll in under a minute."
+  },
+  {
+    "product_id": "pollwise",
+    "product_name": "PollWise",
+    "section": "target_audience",
+    "text": "[PollWise — target_audience]\nDesigned for: Product, marketing, and research teams."
+  },
+  {
+    "product_id": "pollwise",
+    "product_name": "PollWise",
+    "section": "features",
+    "text": "[PollWise — features]\n• Single-question or multi-question polls\n• QR code distribution\n• Live result dashboards\n• Cross-tabs and filters\n• Anonymous mode"
+  },
+  {
+    "product_id": "pollwise",
+    "product_name": "PollWise",
+    "section": "pricing",
+    "text": "[PollWise — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"polls_per_month\": 5, \"responses_per_poll\": 100}, \"pro\": {\"monthly_usd\": 12, \"polls_per_month\": \"unlimited\", \"responses_per_poll\": 5000}, \"team\": {\"monthly_usd\": 29, \"polls_per_month\": \"unlimited\", \"responses_per_poll\": \"unlimited\", \"seats\": 10}}"
+  },
+  {
+    "product_id": "pollwise",
+    "product_name": "PollWise",
+    "section": "refund_policy",
+    "text": "[PollWise — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime."
+  },
+  {
+    "product_id": "pollwise",
+    "product_name": "PollWise",
+    "section": "integrations",
+    "text": "[PollWise — integrations]\nIntegrates with: Slack, Google Sheets, Microsoft Teams"
+  },
+  {
+    "product_id": "receiptvault",
+    "product_name": "ReceiptVault",
+    "section": "overview",
+    "text": "[ReceiptVault — overview]\nReceiptVault turns paper receipts and email confirmations into searchable expense records. OCR extracts merchant, amount, currency, and tax in seconds. Sync to your accounting tool or export a tidy CSV at month end. Snap, store, and reclaim every receipt."
+  },
+  {
+    "product_id": "receiptvault",
+    "product_name": "ReceiptVault",
+    "section": "target_audience",
+    "text": "[ReceiptVault — target_audience]\nDesigned for: Founders, traveling professionals, and finance ops."
+  },
+  {
+    "product_id": "receiptvault",
+    "product_name": "ReceiptVault",
+    "section": "features",
+    "text": "[ReceiptVault — features]\n• Mobile receipt capture\n• Email forwarding ingestion\n• OCR with currency and tax extraction\n• Per-project tagging\n• Sync to QuickBooks and Zoho Books"
+  },
+  {
+    "product_id": "receiptvault",
+    "product_name": "ReceiptVault",
+    "section": "pricing",
+    "text": "[ReceiptVault — pricing]\n{\"starter\": {\"monthly_usd\": 5, \"receipts_per_month\": 50}, \"pro\": {\"monthly_usd\": 12, \"receipts_per_month\": 500}, \"team\": {\"monthly_usd\": 29, \"receipts_per_month\": \"unlimited\", \"seats\": 10}}"
+  },
+  {
+    "product_id": "receiptvault",
+    "product_name": "ReceiptVault",
+    "section": "refund_policy",
+    "text": "[ReceiptVault — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime. Data exports as CSV and PDFs."
+  },
+  {
+    "product_id": "receiptvault",
+    "product_name": "ReceiptVault",
+    "section": "integrations",
+    "text": "[ReceiptVault — integrations]\nIntegrates with: QuickBooks, Zoho Books, Tally, Google Drive"
+  },
+  {
+    "product_id": "timemark",
+    "product_name": "TimeMark",
+    "section": "overview",
+    "text": "[TimeMark — overview]\nTimeMark is a quiet time tracker for individuals and small teams. Auto-detects what you are working on and groups it by project at the end of the day. One-click invoices feed into InvoiceFlow. Time tracking that doesn't nag."
+  },
+  {
+    "product_id": "timemark",
+    "product_name": "TimeMark",
+    "section": "target_audience",
+    "text": "[TimeMark — target_audience]\nDesigned for: Freelancers and small agencies."
+  },
+  {
+    "product_id": "timemark",
+    "product_name": "TimeMark",
+    "section": "features",
+    "text": "[TimeMark — features]\n• Auto-detection of active project\n• Manual time entries\n• Per-project hourly rates\n• Weekly digests\n• InvoiceFlow handoff"
+  },
+  {
+    "product_id": "timemark",
+    "product_name": "TimeMark",
+    "section": "pricing",
+    "text": "[TimeMark — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"projects\": 3}, \"pro\": {\"monthly_usd\": 8, \"projects\": \"unlimited\"}, \"team\": {\"monthly_usd\": 6, \"seats\": \"per seat, min 5\"}}"
+  },
+  {
+    "product_id": "timemark",
+    "product_name": "TimeMark",
+    "section": "refund_policy",
+    "text": "[TimeMark — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime."
+  },
+  {
+    "product_id": "timemark",
+    "product_name": "TimeMark",
+    "section": "integrations",
+    "text": "[TimeMark — integrations]\nIntegrates with: InvoiceFlow, TaskGrid, Toggl import, CSV export"
+  },
+  {
+    "product_id": "timemark",
+    "product_name": "TimeMark",
+    "section": "additional_info",
+    "text": "[TimeMark — additional_info]\nCategory: Productivity"
+  },
+  {
+    "product_id": "documerge",
+    "product_name": "DocuMerge",
+    "section": "overview",
+    "text": "[DocuMerge — overview]\nDocuMerge merges, splits, compresses, and signs PDFs from one clean interface. Drag in 100 files, get one tidy PDF. Built on a local engine so your documents never leave your browser unless you ask. PDFs you don't have to fight."
+  },
+  {
+    "product_id": "documerge",
+    "product_name": "DocuMerge",
+    "section": "target_audience",
+    "text": "[DocuMerge — target_audience]\nDesigned for: Anyone who works with PDFs more than once a week."
+  },
+  {
+    "product_id": "documerge",
+    "product_name": "DocuMerge",
+    "section": "features",
+    "text": "[DocuMerge — features]\n• Merge, split, rotate, reorder pages\n• Compress without quality loss\n• Local processing in browser\n• Optional cloud history\n• Batch rename"
+  },
+  {
+    "product_id": "documerge",
+    "product_name": "DocuMerge",
+    "section": "pricing",
+    "text": "[DocuMerge — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"files_per_day\": 10}, \"pro\": {\"monthly_usd\": 7, \"files_per_day\": \"unlimited\"}, \"team\": {\"monthly_usd\": 19, \"seats\": 10}}"
+  },
+  {
+    "product_id": "documerge",
+    "product_name": "DocuMerge",
+    "section": "refund_policy",
+    "text": "[DocuMerge — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime."
+  },
+  {
+    "product_id": "documerge",
+    "product_name": "DocuMerge",
+    "section": "integrations",
+    "text": "[DocuMerge — integrations]\nIntegrates with: Google Drive, Dropbox, OneDrive"
+  },
+  {
+    "product_id": "kanbanlite",
+    "product_name": "KanbanLite",
+    "section": "overview",
+    "text": "[KanbanLite — overview]\nKanbanLite is a fast, no-frills board for visual task flow. Columns, cards, and a single label per card. Made for teams that want kanban without ten plugins. A kanban board, nothing more."
+  },
+  {
+    "product_id": "kanbanlite",
+    "product_name": "KanbanLite",
+    "section": "target_audience",
+    "text": "[KanbanLite — target_audience]\nDesigned for: Engineering and design teams."
+  },
+  {
+    "product_id": "kanbanlite",
+    "product_name": "KanbanLite",
+    "section": "features",
+    "text": "[KanbanLite — features]\n• Unlimited boards on paid plans\n• Keyboard-driven card creation\n• Single label per card by design\n• Public read-only links\n• JSON import and export"
+  },
+  {
+    "product_id": "kanbanlite",
+    "product_name": "KanbanLite",
+    "section": "pricing",
+    "text": "[KanbanLite — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"boards\": 2}, \"pro\": {\"monthly_usd\": 6, \"boards\": \"unlimited\"}, \"team\": {\"monthly_usd\": 5, \"seats\": \"per seat, min 5\"}}"
+  },
+  {
+    "product_id": "kanbanlite",
+    "product_name": "KanbanLite",
+    "section": "refund_policy",
+    "text": "[KanbanLite — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime."
+  },
+  {
+    "product_id": "kanbanlite",
+    "product_name": "KanbanLite",
+    "section": "integrations",
+    "text": "[KanbanLite — integrations]\nIntegrates with: TaskGrid, GitHub Issues, CSV"
+  },
+  {
+    "product_id": "kanbanlite",
+    "product_name": "KanbanLite",
+    "section": "additional_info",
+    "text": "[KanbanLite — additional_info]\nCategory: Productivity"
+  },
+  {
+    "product_id": "meetminutes",
+    "product_name": "MeetMinutes",
+    "section": "overview",
+    "text": "[MeetMinutes — overview]\nMeetMinutes joins your Zoom, Meet, or Teams call and writes structured notes. Decisions, action items, and open questions land in your inbox five minutes after the call ends. Full transcript stays searchable. Meeting notes that actually capture decisions."
+  },
+  {
+    "product_id": "meetminutes",
+    "product_name": "MeetMinutes",
+    "section": "target_audience",
+    "text": "[MeetMinutes — target_audience]\nDesigned for: Product, sales, and leadership teams."
+  },
+  {
+    "product_id": "meetminutes",
+    "product_name": "MeetMinutes",
+    "section": "features",
+    "text": "[MeetMinutes — features]\n• Auto-join via calendar\n• Decision and action-item extraction\n• Speaker-aware transcripts\n• Searchable archive\n• Privacy mode for muted segments"
+  },
+  {
+    "product_id": "meetminutes",
+    "product_name": "MeetMinutes",
+    "section": "pricing",
+    "text": "[MeetMinutes — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"meetings_per_month\": 5}, \"pro\": {\"monthly_usd\": 18, \"meetings_per_month\": 50}, \"team\": {\"monthly_usd\": 14, \"seats\": \"per seat, min 5\", \"meetings_per_month\": \"unlimited\"}}"
+  },
+  {
+    "product_id": "meetminutes",
+    "product_name": "MeetMinutes",
+    "section": "refund_policy",
+    "text": "[MeetMinutes — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime. Transcripts remain downloadable for 90 days after."
+  },
+  {
+    "product_id": "meetminutes",
+    "product_name": "MeetMinutes",
+    "section": "integrations",
+    "text": "[MeetMinutes — integrations]\nIntegrates with: Zoom, Google Meet, Microsoft Teams, Slack, Notion"
+  },
+  {
+    "product_id": "pixeldeck",
+    "product_name": "PixelDeck",
+    "section": "overview",
+    "text": "[PixelDeck — overview]\nPixelDeck is for engineers and educators who want polished decks without dragging text boxes. Write in markdown, get a deck that looks designed. Export as PDF, PPTX, or a hosted URL. Slides built in markdown, exported as pixels."
+  },
+  {
+    "product_id": "pixeldeck",
+    "product_name": "PixelDeck",
+    "section": "target_audience",
+    "text": "[PixelDeck — target_audience]\nDesigned for: Engineers, educators, and technical founders."
+  },
+  {
+    "product_id": "pixeldeck",
+    "product_name": "PixelDeck",
+    "section": "features",
+    "text": "[PixelDeck — features]\n• Markdown editor with live preview\n• 20 themes, 5 color schemes\n• PDF, PPTX, and hosted-URL export\n• Speaker notes\n• Diagram blocks (flow, sequence, mermaid)"
+  },
+  {
+    "product_id": "pixeldeck",
+    "product_name": "PixelDeck",
+    "section": "pricing",
+    "text": "[PixelDeck — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"decks\": 3}, \"pro\": {\"monthly_usd\": 9, \"decks\": \"unlimited\"}, \"team\": {\"monthly_usd\": 7, \"seats\": \"per seat, min 5\"}}"
+  },
+  {
+    "product_id": "pixeldeck",
+    "product_name": "PixelDeck",
+    "section": "refund_policy",
+    "text": "[PixelDeck — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime."
+  },
+  {
+    "product_id": "pixeldeck",
+    "product_name": "PixelDeck",
+    "section": "integrations",
+    "text": "[PixelDeck — integrations]\nIntegrates with: GitHub, Google Drive, Notion"
+  },
+  {
+    "product_id": "inboxclean",
+    "product_name": "InboxClean",
+    "section": "overview",
+    "text": "[InboxClean — overview]\nInboxClean groups your inbox into Now, Later, and Forever-Maybe. Bulk unsubscribe with one tap. Promotions and receipts get auto-filed using ReceiptVault rules. Triage your inbox in three minutes a day."
+  },
+  {
+    "product_id": "inboxclean",
+    "product_name": "InboxClean",
+    "section": "target_audience",
+    "text": "[InboxClean — target_audience]\nDesigned for: Executives, founders, and consultants."
+  },
+  {
+    "product_id": "inboxclean",
+    "product_name": "InboxClean",
+    "section": "features",
+    "text": "[InboxClean — features]\n• Now, Later, Maybe triage view\n• One-tap bulk unsubscribe\n• Sender reputation scoring\n• Promotions auto-filing\n• Snooze with smart resurface"
+  },
+  {
+    "product_id": "inboxclean",
+    "product_name": "InboxClean",
+    "section": "pricing",
+    "text": "[InboxClean — pricing]\n{\"starter\": {\"monthly_usd\": 5, \"accounts\": 1}, \"pro\": {\"monthly_usd\": 12, \"accounts\": 3}, \"team\": {\"monthly_usd\": 10, \"seats\": \"per seat, min 5\"}}"
+  },
+  {
+    "product_id": "inboxclean",
+    "product_name": "InboxClean",
+    "section": "refund_policy",
+    "text": "[InboxClean — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime. We never touch your messages on the server after cancellation."
+  },
+  {
+    "product_id": "inboxclean",
+    "product_name": "InboxClean",
+    "section": "integrations",
+    "text": "[InboxClean — integrations]\nIntegrates with: Gmail, Outlook, ReceiptVault"
+  },
+  {
+    "product_id": "inboxclean",
+    "product_name": "InboxClean",
+    "section": "additional_info",
+    "text": "[InboxClean — additional_info]\nCategory: Communication"
+  },
+  {
+    "product_id": "teampulse",
+    "product_name": "TeamPulse",
+    "section": "overview",
+    "text": "[TeamPulse — overview]\nTeamPulse runs short, recurring surveys that take 90 seconds to answer. Trends show up over weeks, not after a yearly engagement push. Anonymous by default and aggregated above a five-person floor. Lightweight pulse surveys for real teams."
+  },
+  {
+    "product_id": "teampulse",
+    "product_name": "TeamPulse",
+    "section": "target_audience",
+    "text": "[TeamPulse — target_audience]\nDesigned for: People ops and engineering managers."
+  },
+  {
+    "product_id": "teampulse",
+    "product_name": "TeamPulse",
+    "section": "features",
+    "text": "[TeamPulse — features]\n• Weekly, biweekly, or monthly cadence\n• Anonymous by default\n• Five-person aggregation floor\n• eNPS and custom themes\n• Slack and Teams delivery"
+  },
+  {
+    "product_id": "teampulse",
+    "product_name": "TeamPulse",
+    "section": "pricing",
+    "text": "[TeamPulse — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"seats\": 10}, \"pro\": {\"monthly_usd\": 4, \"seats\": \"per seat\"}, \"team\": {\"monthly_usd\": 3, \"seats\": \"per seat, min 50\"}}"
+  },
+  {
+    "product_id": "teampulse",
+    "product_name": "TeamPulse",
+    "section": "refund_policy",
+    "text": "[TeamPulse — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime. Aggregated history exports as CSV."
+  },
+  {
+    "product_id": "teampulse",
+    "product_name": "TeamPulse",
+    "section": "integrations",
+    "text": "[TeamPulse — integrations]\nIntegrates with: Slack, Microsoft Teams, BambooHR, Workday export"
+  },
+  {
+    "product_id": "linkvault",
+    "product_name": "LinkVault",
+    "section": "overview",
+    "text": "[LinkVault — overview]\nLinkVault is a shared bookmark manager for teams. Saved links get auto-tagged and re-checked weekly so dead URLs surface fast. Searchable from a browser extension or a Slack slash command. Shared bookmarks that don't go stale."
+  },
+  {
+    "product_id": "linkvault",
+    "product_name": "LinkVault",
+    "section": "target_audience",
+    "text": "[LinkVault — target_audience]\nDesigned for: Research, design, and engineering teams."
+  },
+  {
+    "product_id": "linkvault",
+    "product_name": "LinkVault",
+    "section": "features",
+    "text": "[LinkVault — features]\n• Browser extension and Slack command\n• Auto-tagging from page content\n• Weekly dead-link sweep\n• Per-collection sharing\n• Read later queue"
+  },
+  {
+    "product_id": "linkvault",
+    "product_name": "LinkVault",
+    "section": "pricing",
+    "text": "[LinkVault — pricing]\n{\"starter\": {\"monthly_usd\": 0, \"links\": 100, \"seats\": 3}, \"pro\": {\"monthly_usd\": 5, \"links\": \"unlimited\", \"seats\": 10}, \"team\": {\"monthly_usd\": 4, \"seats\": \"per seat, min 10\"}}"
+  },
+  {
+    "product_id": "linkvault",
+    "product_name": "LinkVault",
+    "section": "refund_policy",
+    "text": "[LinkVault — refund_policy]\nRefund: 14 day refund window.\nCancellation: Cancel anytime."
+  },
+  {
+    "product_id": "linkvault",
+    "product_name": "LinkVault",
+    "section": "integrations",
+    "text": "[LinkVault — integrations]\nIntegrates with: Slack, Chrome, Firefox, Safari"
+  },
+  {
+    "product_id": "billsplit",
+    "product_name": "BillSplit",
+    "section": "overview",
+    "text": "[BillSplit — overview]\nBillSplit gives small SaaS companies the subscription, dunning, and invoicing flow that usually takes a quarter to build. Hosted checkout, customer portal, and webhook events are all included. Switch on tax handling per country with one toggle. Stripe-style subscription billing in a weekend."
+  },
+  {
+    "product_id": "billsplit",
+    "product_name": "BillSplit",
+    "section": "target_audience",
+    "text": "[BillSplit — target_audience]\nDesigned for: Indie SaaS founders and small SaaS companies."
+  },
+  {
+    "product_id": "billsplit",
+    "product_name": "BillSplit",
+    "section": "features",
+    "text": "[BillSplit — features]\n• Hosted checkout and portal\n• Dunning and retry policy\n• Per-country tax handling\n• Stripe and Razorpay backends\n• Webhook event stream"
+  },
+  {
+    "product_id": "billsplit",
+    "product_name": "BillSplit",
+    "section": "pricing",
+    "text": "[BillSplit — pricing]\n{\"starter\": {\"monthly_usd\": 29, \"monthly_revenue_cap_usd\": 5000}, \"pro\": {\"monthly_usd\": 79, \"monthly_revenue_cap_usd\": 50000}, \"team\": {\"monthly_usd\": 199, \"monthly_revenue_cap_usd\": \"uncapped\"}}"
+  },
+  {
+    "product_id": "billsplit",
+    "product_name": "BillSplit",
+    "section": "refund_policy",
+    "text": "[BillSplit — refund_policy]\nRefund: 14 day refund window for first purchase.\nCancellation: Cancel anytime. Your customer and invoice data exports as a single ZIP."
+  },
+  {
+    "product_id": "billsplit",
+    "product_name": "BillSplit",
+    "section": "integrations",
+    "text": "[BillSplit — integrations]\nIntegrates with: Stripe, Razorpay, QuickBooks, Webhooks"
+  },
+  {
+    "product_id": "audittrail",
+    "product_name": "AuditTrail",
+    "section": "overview",
+    "text": "[AuditTrail — overview]\nAuditTrail records who did what, where, and when across your stack. SOC 2 and ISO 27001 evidence packs are generated on demand. Drop in one SDK and your logs become audit-ready. Compliance logging without the consulting bill."
+  },
+  {
+    "product_id": "audittrail",
+    "product_name": "AuditTrail",
+    "section": "target_audience",
+    "text": "[AuditTrail — target_audience]\nDesigned for: Engineering and security teams in regulated industries."
+  },
+  {
+    "product_id": "audittrail",
+    "product_name": "AuditTrail",
+    "section": "features",
+    "text": "[AuditTrail — features]\n• Append-only event log\n• SOC 2 and ISO 27001 evidence packs\n• Per-user activity timeline\n• Configurable retention\n• SDKs for Node, Python, Go"
+  },
+  {
+    "product_id": "audittrail",
+    "product_name": "AuditTrail",
+    "section": "pricing",
+    "text": "[AuditTrail — pricing]\n{\"starter\": {\"monthly_usd\": 49, \"events_per_month\": 100000}, \"pro\": {\"monthly_usd\": 149, \"events_per_month\": 1000000}, \"team\": {\"monthly_usd\": 399, \"events_per_month\": \"10M, then USD 0.10 per 1k\"}}"
+  },
+  {
+    "product_id": "audittrail",
+    "product_name": "AuditTrail",
+    "section": "refund_policy",
+    "text": "[AuditTrail — refund_policy]\nRefund: 14 day refund window for first purchase.\nCancellation: Cancel anytime. Logs remain readable for 30 days post-cancellation."
+  },
+  {
+    "product_id": "audittrail",
+    "product_name": "AuditTrail",
+    "section": "integrations",
+    "text": "[AuditTrail — integrations]\nIntegrates with: AWS CloudTrail, Datadog, Splunk, Webhooks"
+  }
+]
