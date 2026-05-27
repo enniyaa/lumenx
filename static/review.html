@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LumenX Agent — Review Queue</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0f1117;
+    --surface:   #1a1d27;
+    --surface2:  #22263a;
+    --border:    #2e3348;
+    --accent:    #6366f1;
+    --accent2:   #818cf8;
+    --green:     #22c55e;
+    --yellow:    #eab308;
+    --red:       #ef4444;
+    --muted:     #64748b;
+    --text:      #e2e8f0;
+    --text2:     #94a3b8;
+    --radius:    10px;
+    --font:      'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-logo { font-size: 18px; font-weight: 700; color: var(--accent2); letter-spacing: -0.5px; }
+  .header-subtitle { color: var(--muted); font-size: 13px; }
+  .header-spacer { flex: 1; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .badge-pending  { background: rgba(234,179,8,.15);  color: var(--yellow); }
+  .badge-approved { background: rgba(34,197,94,.15);  color: var(--green); }
+  .badge-edited   { background: rgba(99,102,241,.15); color: var(--accent2); }
+  .badge-rejected { background: rgba(239,68,68,.12);  color: var(--red); }
+  .badge-auto_sent{ background: rgba(34,197,94,.1);   color: #86efac; }
+
+  /* ── Layout ── */
+  .layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 57px); }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 12px 8px;
+  }
+  .sidebar-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--muted);
+    padding: 4px 8px 10px;
+  }
+  .sidebar-item {
+    padding: 10px 12px; border-radius: var(--radius); cursor: pointer;
+    margin-bottom: 3px; transition: background .15s;
+    border: 1px solid transparent;
+  }
+  .sidebar-item:hover  { background: var(--surface2); }
+  .sidebar-item.active { background: var(--surface2); border-color: var(--border); }
+  .sidebar-item-intent { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .sidebar-item-msg    { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar-item-meta   { font-size: 11px; color: var(--muted); margin-top: 4px; display: flex; gap: 8px; }
+
+  /* ── Main pane ── */
+  .main { padding: 24px; overflow-y: auto; }
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 60vh; gap: 12px; color: var(--muted);
+  }
+  .empty-icon { font-size: 48px; }
+
+  /* ── Reply Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+  .card-meta { flex: 1; }
+  .card-title { font-weight: 600; margin-bottom: 4px; }
+  .card-tags  { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag {
+    font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 500;
+    background: var(--surface2); color: var(--text2); border: 1px solid var(--border);
+  }
+  .tag-accent { border-color: var(--accent); color: var(--accent2); }
+
+  /* ── Message blocks ── */
+  .msg-block { margin-bottom: 14px; }
+  .msg-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--muted); margin-bottom: 6px;
+  }
+  .msg-text {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+    white-space: pre-wrap; word-break: break-word; line-height: 1.7;
+  }
+  .customer-msg { border-left: 3px solid var(--accent); }
+  textarea.draft-edit {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; color: var(--text);
+    font-family: var(--font); font-size: 14px; line-height: 1.7;
+    resize: vertical; min-height: 140px;
+    transition: border-color .15s;
+    outline: none;
+  }
+  textarea.draft-edit:focus { border-color: var(--accent); }
+
+  /* ── Confidence bar ── */
+  .conf-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .conf-label { font-size: 12px; color: var(--muted); width: 90px; }
+  .conf-bar-wrap { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .conf-bar { height: 100%; border-radius: 3px; transition: width .3s; }
+  .conf-value { font-size: 12px; font-weight: 600; width: 40px; text-align: right; }
+
+  /* ── Action buttons ── */
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
+  .btn {
+    padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+    border: 1px solid transparent; cursor: pointer; transition: opacity .15s, transform .1s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-approve { background: var(--green);  color: #000; }
+  .btn-edit    { background: var(--accent); color: #fff; }
+  .btn-reject  { background: transparent;  color: var(--red); border-color: var(--red); }
+  .btn-thumbs  {
+    background: transparent; color: var(--muted);
+    border-color: var(--border); padding: 8px 14px;
+  }
+  .btn-thumbs.active-up   { color: var(--green); border-color: var(--green); background: rgba(34,197,94,.1); }
+  .btn-thumbs.active-down { color: var(--red);   border-color: var(--red);   background: rgba(239,68,68,.08); }
+  .btn-secondary {
+    background: var(--surface2); color: var(--text2);
+    border-color: var(--border); font-size: 12px; padding: 6px 12px;
+  }
+  .actions-spacer { flex: 1; }
+
+  /* ── Context accordion ── */
+  .accordion { margin-top: 12px; }
+  .accordion-toggle {
+    width: 100%; background: none; border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 14px;
+    color: var(--text2); font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; transition: background .15s;
+    font-family: var(--font);
+  }
+  .accordion-toggle:hover { background: var(--surface2); }
+  .accordion-body {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-top: none; border-radius: 0 0 8px 8px;
+    padding: 12px 14px;
+    font-family: 'Fira Mono', 'Consolas', monospace;
+    font-size: 11.5px; line-height: 1.65; white-space: pre-wrap;
+    word-break: break-word; max-height: 320px; overflow-y: auto;
+    color: var(--text2);
+  }
+
+  /* ── Toast ── */
+  .toast-wrap {
+    position: fixed; bottom: 24px; right: 24px;
+    display: flex; flex-direction: column; gap: 8px; z-index: 9999;
+  }
+  .toast {
+    padding: 12px 18px; border-radius: var(--radius);
+    font-size: 13px; font-weight: 500; color: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    animation: slide-in .25s ease;
+    min-width: 240px;
+  }
+  .toast-ok  { background: #166534; border: 1px solid var(--green); }
+  .toast-err { background: #7f1d1d; border: 1px solid var(--red); }
+  @keyframes slide-in { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform:none; } }
+
+  /* ── Spinner ── */
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,.25); border-top-color: currentColor;
+    border-radius: 50%; animation: spin .6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Status filter tabs ── */
+  .filter-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-tab {
+    padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--border); cursor: pointer;
+    background: none; color: var(--muted); font-family: var(--font);
+    transition: all .15s;
+  }
+  .filter-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .filter-tab:hover:not(.active) { background: var(--surface2); }
+
+  /* ── Cost chip ── */
+  .cost-chip {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: rgba(99,102,241,.1); color: var(--accent2);
+    border: 1px solid rgba(99,102,241,.2);
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+const API = "";   // same origin
+
+// ── Utilities ────────────────────────────────────────────────────────────────
+
+function intentColor(intent) {
+  const map = { pricing:"#f59e0b", technical:"#3b82f6", refund:"#ef4444", greeting:"#22c55e", other:"#8b5cf6" };
+  return map[intent] || "#64748b";
+}
+
+function confColor(c) {
+  if (c >= 0.9) return "#22c55e";
+  if (c >= 0.7) return "#eab308";
+  return "#ef4444";
+}
+
+function fmtDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleString("en-US", { month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
+}
+
+// ── API calls ─────────────────────────────────────────────────────────────────
+
+async function apiFetch(path, opts = {}) {
+  const r = await fetch(API + path, {
+    headers: { "Content-Type": "application/json" },
+    ...opts,
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    throw new Error(`HTTP ${r.status}: ${t}`);
+  }
+  return r.json();
+}
+
+// ── Toast component ───────────────────────────────────────────────────────────
+
+function ToastContainer({ toasts }) {
+  return (
+    <div className="toast-wrap">
+      {toasts.map(t => (
+        <div key={t.id} className={`toast ${t.ok ? "toast-ok" : "toast-err"}`}>
+          {t.ok ? "✓" : "✕"} {t.msg}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Confidence bar ────────────────────────────────────────────────────────────
+
+function ConfBar({ value }) {
+  const pct  = value != null ? Math.round(value * 100) : null;
+  const col  = value != null ? confColor(value) : "#64748b";
+  return (
+    <div className="conf-row">
+      <span className="conf-label">Confidence</span>
+      <div className="conf-bar-wrap">
+        <div className="conf-bar" style={{ width: pct != null ? `${pct}%` : "50%", background: col }} />
+      </div>
+      <span className="conf-value" style={{ color: col }}>
+        {pct != null ? `${pct}%` : "n/a"}
+      </span>
+    </div>
+  );
+}
+
+// ── Context accordion ─────────────────────────────────────────────────────────
+
+function ContextAccordion({ itemId }) {
+  const [open, setOpen]   = useState(false);
+  const [data, setData]   = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  async function load() {
+    if (data) return;
+    setLoading(true);
+    try {
+      const d = await apiFetch(`/agent/queue/${itemId}`);
+      setData(d);
+    } catch(e) {
+      setData({ error: e.message });
+    } finally { setLoading(false); }
+  }
+
+  function toggle() {
+    if (!open) load();
+    setOpen(!open);
+  }
+
+  function renderContext(ctx) {
+    if (!ctx || typeof ctx !== "object") return String(ctx || "");
+    const parts = [];
+    if (ctx.system)    parts.push(`=== SYSTEM PROMPT ===\n${ctx.system}`);
+    if (ctx.cacheable) parts.push(`=== PRODUCT CONTEXT + SUMMARY (cached) ===\n${ctx.cacheable}`);
+    if (ctx.dynamic)   parts.push(`=== THREAD + MESSAGE (dynamic) ===\n${ctx.dynamic}`);
+    return parts.length ? parts.join("\n\n") : JSON.stringify(ctx, null, 2);
+  }
+
+  return (
+    <div className="accordion">
+      <button className="accordion-toggle" onClick={toggle}>
+        {open ? "▲" : "▼"} {loading ? <span className="spinner" /> : null}
+        &nbsp;Show Context Window
+      </button>
+      {open && (
+        <div className="accordion-body">
+          {data?.error ? (
+            <span style={{ color:"var(--red)" }}>{data.error}</span>
+          ) : data ? (
+            renderContext(data.context)
+          ) : (
+            "Loading..."
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Reply Card ────────────────────────────────────────────────────────────────
+
+function ReplyCard({ item, onResolved, addToast }) {
+  const [editText, setEditText]   = useState(item.draft_text);
+  const [editMode, setEditMode]   = useState(false);
+  const [busy, setBusy]           = useState(false);
+  const [thumbs, setThumbs]       = useState(null);
+  const [resolved, setResolved]   = useState(item.status !== "pending");
+
+  const isResolved = resolved || item.status !== "pending";
+
+  async function act(path, body = undefined) {
+    setBusy(true);
+    try {
+      const opts = body ? { method:"POST", body: JSON.stringify(body) } : { method:"POST" };
+      await apiFetch(`/agent/queue/${item.id}/${path}`, opts);
+      return true;
+    } catch(e) {
+      addToast(false, e.message);
+      return false;
+    } finally { setBusy(false); }
+  }
+
+  async function handleApprove() {
+    if (!await act("approve")) return;
+    addToast(true, "Draft approved and sent to LumenX!");
+    setResolved(true);
+    onResolved(item.id, "approved");
+  }
+
+  async function handleEdit() {
+    if (!editText.trim()) { addToast(false, "Reply text cannot be empty"); return; }
+    if (!await act("edit", { edited_text: editText })) return;
+    addToast(true, "Edited reply sent to LumenX!");
+    setResolved(true);
+    onResolved(item.id, "edited");
+  }
+
+  async function handleReject() {
+    if (!await act("reject")) return;
+    addToast(true, "Draft rejected. Please write a manual reply.");
+    setResolved(true);
+    onResolved(item.id, "rejected");
+  }
+
+  async function handleThumb(val) {
+    const next = thumbs === val ? null : val;
+    setThumbs(next);
+    if (next) await act("feedback", { thumbs: next });
+  }
+
+  const statusColors = { approved:"var(--green)", edited:"var(--accent2)", rejected:"var(--red)", auto_sent:"#86efac" };
+
+  return (
+    <div className="card" style={ isResolved ? { opacity:.65 } : {} }>
+      {/* Header */}
+      <div className="card-header">
+        <div className="card-meta">
+          <div className="card-title">Thread {item.thread_id}</div>
+          <div className="card-tags" style={{ marginTop:6 }}>
+            {item.intent && (
+              <span className="tag tag-accent" style={{ borderColor: intentColor(item.intent), color: intentColor(item.intent) }}>
+                {item.intent}
+              </span>
+            )}
+            {item.cost_usd != null && (
+              <span className="cost-chip">${item.cost_usd.toFixed(5)}</span>
+            )}
+            {isResolved && (
+              <span className="badge" style={{ background: `${statusColors[item.status] || "#888"}22`, color: statusColors[item.status] || "#888", fontSize:11 }}>
+                {item.status}
+              </span>
+            )}
+            <span className="tag" style={{ color:"var(--muted)", fontSize:11 }}>
+              {fmtDate(item.created_at)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Customer message */}
+      {item.customer_msg && (
+        <div className="msg-block">
+          <div className="msg-label">Customer message</div>
+          <div className="msg-text customer-msg">{item.customer_msg}</div>
+        </div>
+      )}
+
+      {/* Confidence */}
+      <ConfBar value={item.confidence} />
+
+      {/* Draft / edit */}
+      <div className="msg-block">
+        <div className="msg-label" style={{ display:"flex", justifyContent:"space-between" }}>
+          <span>Agent draft</span>
+          {!isResolved && (
+            <button
+              className="btn btn-secondary"
+              onClick={() => setEditMode(!editMode)}
+              style={{ padding:"2px 10px", fontSize:11 }}
+            >
+              {editMode ? "Cancel edit" : "Edit"}
+            </button>
+          )}
+        </div>
+
+        {editMode && !isResolved ? (
+          <textarea
+            className="draft-edit"
+            value={editText}
+            onChange={e => setEditText(e.target.value)}
+          />
+        ) : (
+          <div className="msg-text">{item.draft_text}</div>
+        )}
+      </div>
+
+      {/* Actions */}
+      {!isResolved && (
+        <div className="actions">
+          <button
+            className="btn btn-approve"
+            onClick={handleApprove}
+            disabled={busy || editMode}
+            title="Send draft exactly as-is"
+          >
+            {busy ? <span className="spinner"/> : "✓"} Approve
+          </button>
+
+          {editMode && (
+            <button
+              className="btn btn-edit"
+              onClick={handleEdit}
+              disabled={busy}
+            >
+              {busy ? <span className="spinner"/> : "✎"} Edit &amp; Send
+            </button>
+          )}
+
+          <button
+            className="btn btn-reject"
+            onClick={handleReject}
+            disabled={busy}
+            title="Discard — you will write from scratch"
+          >
+            Reject
+          </button>
+
+          <span className="actions-spacer" />
+
+          <button
+            className={`btn btn-thumbs ${thumbs==="up" ? "active-up" : ""}`}
+            onClick={() => handleThumb("up")}
+            title="Good reply"
+          >👍</button>
+          <button
+            className={`btn btn-thumbs ${thumbs==="down" ? "active-down" : ""}`}
+            onClick={() => handleThumb("down")}
+            title="Bad reply"
+          >👎</button>
+        </div>
+      )}
+
+      {/* Context window accordion */}
+      <ContextAccordion itemId={item.id} />
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────────────────────────────
+
+function App() {
+  const [items, setItems]       = useState([]);
+  const [filter, setFilter]     = useState("pending");
+  const [loading, setLoading]   = useState(true);
+  const [selected, setSelected] = useState(null);
+  const [toasts, setToasts]     = useState([]);
+  const [count, setCount]       = useState({});
+  const toastId = useRef(0);
+
+  function addToast(ok, msg) {
+    const id = ++toastId.current;
+    setToasts(t => [...t, { id, ok, msg }]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 4000);
+  }
+
+  const loadQueue = useCallback(async () => {
+    try {
+      const data = await apiFetch(`/agent/queue?status=${filter}&limit=100`);
+      setItems(data);
+      if (data.length > 0 && !selected) setSelected(data[0].id);
+    } catch(e) {
+      addToast(false, `Failed to load queue: ${e.message}`);
+    } finally { setLoading(false); }
+  }, [filter]);
+
+  // Poll every 5 s while on pending tab
+  useEffect(() => {
+    loadQueue();
+    if (filter !== "pending") return;
+    const t = setInterval(loadQueue, 5000);
+    return () => clearInterval(t);
+  }, [loadQueue, filter]);
+
+  // Load counts for all statuses
+  useEffect(() => {
+    Promise.all(
+      ["pending","approved","edited","rejected","auto_sent"].map(s =>
+        apiFetch(`/agent/queue?status=${s}&limit=200`).then(d => [s, d.length])
+      )
+    ).then(pairs => setCount(Object.fromEntries(pairs))).catch(() => {});
+  }, [items]);
+
+  function onResolved(id, status) {
+    setItems(prev =>
+      filter === "pending"
+        ? prev.filter(i => i.id !== id)
+        : prev.map(i => i.id === id ? {...i, status} : i)
+    );
+    // Auto-select next
+    const idx = items.findIndex(i => i.id === id);
+    const next = items[idx + 1] || items[idx - 1];
+    setSelected(next ? next.id : null);
+  }
+
+  const activeItem = items.find(i => i.id === selected);
+
+  const FILTERS = ["pending","approved","edited","rejected","auto_sent"];
+
+  return (
+    <>
+      {/* Header */}
+      <div className="header">
+        <div className="header-logo">LumenX Agent</div>
+        <div className="header-subtitle">Human Review Queue</div>
+        <div className="header-spacer" />
+        {count.pending > 0 && (
+          <span className="badge badge-pending">{count.pending} pending</span>
+        )}
+        <button
+          className="btn btn-secondary"
+          onClick={loadQueue}
+          style={{ padding:"6px 12px", fontSize:12 }}
+        >Refresh</button>
+      </div>
+
+      <div className="layout">
+        {/* Sidebar */}
+        <div className="sidebar">
+          <div className="sidebar-title">Queue</div>
+
+          {/* Filter tabs */}
+          <div style={{ display:"flex", flexDirection:"column", gap:3, marginBottom:10 }}>
+            {FILTERS.map(s => (
+              <button
+                key={s}
+                className={`filter-tab ${filter===s ? "active" : ""}`}
+                style={{ borderRadius:8, textAlign:"left" }}
+                onClick={() => { setFilter(s); setSelected(null); setLoading(true); }}
+              >
+                {s} {count[s] ? `(${count[s]})` : ""}
+              </button>
+            ))}
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign:"center", padding:"24px 0", color:"var(--muted)" }}>
+              <span className="spinner" style={{ borderTopColor:"var(--accent)" }} />
+            </div>
+          ) : items.length === 0 ? (
+            <div style={{ textAlign:"center", padding:"24px 8px", color:"var(--muted)", fontSize:12 }}>
+              No {filter} items
+            </div>
+          ) : (
+            items.map(item => (
+              <div
+                key={item.id}
+                className={`sidebar-item ${selected===item.id ? "active" : ""}`}
+                onClick={() => setSelected(item.id)}
+              >
+                <div className="sidebar-item-intent">
+                  <span style={{ color: intentColor(item.intent) }}>{item.intent || "other"}</span>
+                  {" · "}
+                  <span>{item.thread_id.slice(-8)}</span>
+                </div>
+                <div className="sidebar-item-msg">
+                  {item.customer_msg || item.draft_text}
+                </div>
+                <div className="sidebar-item-meta">
+                  <span>{item.confidence != null ? `${Math.round(item.confidence*100)}%` : "—"}</span>
+                  {item.cost_usd != null && <span>${item.cost_usd.toFixed(5)}</span>}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Main pane */}
+        <div className="main">
+          {activeItem ? (
+            <ReplyCard
+              key={activeItem.id}
+              item={activeItem}
+              onResolved={onResolved}
+              addToast={addToast}
+            />
+          ) : (
+            <div className="empty-state">
+              <div className="empty-icon">
+                {filter === "pending" ? "📬" : "✅"}
+              </div>
+              <div style={{ fontWeight:600 }}>
+                {filter === "pending" ? "No pending replies" : `No ${filter} items`}
+              </div>
+              <div style={{ color:"var(--muted)", fontSize:12 }}>
+                {filter === "pending"
+                  ? "The agent will add items here when new messages arrive"
+                  : "Select a filter to browse resolved items"}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <ToastContainer toasts={toasts} />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

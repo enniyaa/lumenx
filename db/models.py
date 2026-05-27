@@ -54,12 +54,14 @@ class ReviewQueue(Base):
 
     id            = Column(Integer, primary_key=True, autoincrement=True)
     thread_id     = Column(String(128), nullable=False, index=True)
+    customer_msg  = Column(Text, nullable=True)   # The incoming customer message
     draft_text    = Column(Text, nullable=False)
     confidence    = Column(Float, nullable=True)
     intent        = Column(String(32), nullable=True)
     features_json = Column(Text, nullable=True)   # JSON dict of MLP features
     context_json  = Column(Text, nullable=True)   # Full prompt for dashboard viewer
-    status        = Column(String(16), default="pending")  # pending|approved|edited|rejected
+    cost_usd      = Column(Float, nullable=True)  # Draft generation cost (Phase 9)
+    status        = Column(String(16), default="pending")  # pending|approved|edited|rejected|auto_sent
     created_at    = Column(DateTime, default=datetime.utcnow, nullable=False)
     resolved_at   = Column(DateTime, nullable=True)
 

@@ -13,7 +13,7 @@
 | 2 | Intent Router | ✅ COMPLETE |
 | 3 | Context Builder | ✅ COMPLETE |
 | 4 | Draft Agent | ✅ COMPLETE |
-| 5 | Human Review UI + Feedback Capture | ⏳ PENDING |
+| 5 | Human Review UI + Feedback Capture | ✅ COMPLETE |
 | 6 | Feedback Log | ⏳ PENDING |
 | 7 | Confidence Net (MLP) | ⏳ PENDING |
 | 8 | Auto-Reply Router | ⏳ PENDING |
@@ -135,18 +135,39 @@ exact_context_tokens        — token count from Phase 3 context builder
 
 ---
 
-## Phase 5 — Human Review UI + Feedback Capture ⏳ PENDING PERMISSION
+## Phase 5 — Human Review UI + Feedback Capture ✅ COMPLETE
 
 **Goal**: Review panel in admin UI for approving/editing/rejecting agent drafts.
 
 | Task | Status |
 |------|--------|
-| `GET /agent/queue` — list pending drafts | ⏳ |
-| `POST /agent/queue/{id}/approve` | ⏳ |
-| `POST /agent/queue/{id}/edit` — save edit + record training example | ⏳ |
-| `POST /agent/queue/{id}/reject` | ⏳ |
-| `POST /agent/queue/{id}/feedback` — thumbs up/down | ⏳ |
-| `<ReplyCard>` component: message + draft + confidence + cost + edit textarea | ⏳ |
+| `GET /agent/queue` — list pending drafts (+ status filter, limit) | ✅ |
+| `GET /agent/queue/{id}` — full detail with context_json | ✅ |
+| `POST /agent/queue/{id}/approve` — send to LumenX + FeedbackEntry(approved_as_is=True) | ✅ |
+| `POST /agent/queue/{id}/edit` — send edited text + FeedbackEntry(approved_as_is=False) | ✅ |
+| `POST /agent/queue/{id}/reject` — mark rejected, no LumenX send | ✅ |
+| `POST /agent/queue/{id}/feedback` — thumbs up/down → FeedbackEntry.thumbs | ✅ |
+| `agent/main.py` — FastAPI app: startup events, CORS, static files, health check | ✅ |
+| `agent/routers/queue.py` — all queue endpoints in dedicated router | ✅ |
+| `static/review.html` — standalone React review panel (dark theme, no build step) | ✅ |
+| DB migration: `customer_msg` + `cost_usd` added to `review_queue` table | ✅ |
+
+**Final test result**: 10/10 checks passed  
+**FeedbackEntry creation**: approve → `approved_as_is=True`; edit → `approved_as_is=False` ✅  
+**Routing**: resolved items immediately removed from pending queue ✅
+
+**Review UI features** (`/review`):
+- Dark themed React SPA served from FastAPI static files
+- Left sidebar: queue items with intent colour, confidence %, cost chip
+- Status filter tabs: pending / approved / edited / rejected / auto_sent
+- ReplyCard: customer message, confidence bar, draft (editable textarea)
+- Approve / Edit & Send / Reject buttons with loading spinner
+- Thumbs up/down feedback buttons
+- Expandable "Show Context Window" accordion (shows system/cacheable/dynamic sections)
+- Toast notifications for all actions
+- 5-second auto-poll while on pending tab
+
+**Design note**: approve/edit are non-fatal on LumenX send failure — the FeedbackEntry and status update still commit, `sent: false` is returned. This prevents losing approvals when the LumenX API is temporarily unreachable.
 
 ---
 
