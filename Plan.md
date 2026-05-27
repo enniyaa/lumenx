@@ -10,8 +10,8 @@
 | Phase | Name | Status |
 |-------|------|--------|
 | 1 | Project Scaffolding & LLM Wiki | ✅ COMPLETE |
-| 2 | Intent Router | 🔄 IN PROGRESS |
-| 3 | Context Builder | ⏳ PENDING |
+| 2 | Intent Router | ✅ COMPLETE |
+| 3 | Context Builder | ✅ COMPLETE |
 | 4 | Draft Agent | ⏳ PENDING |
 | 5 | Human Review UI + Feedback Capture | ⏳ PENDING |
 | 6 | Feedback Log | ⏳ PENDING |
@@ -45,7 +45,7 @@
 
 ---
 
-## Phase 2 — Intent Router 🔄 IN PROGRESS
+## Phase 2 — Intent Router ✅ COMPLETE
 
 **Goal**: Classify every incoming message (greeting/pricing/technical/refund/other) before the context builder.
 
@@ -59,27 +59,32 @@
 | `CostLog` DB insert via `_log_cost()` | ✅ |
 | Fix `datetime.utcnow()` → `datetime.now(timezone.utc)` | ✅ |
 | System prompt tuned: technical=errors only; capability questions→other | ✅ |
-| **Re-run 10-message accuracy test (target ≥ 90%)** | 🔄 RUNNING |
-| Git commit Phase 2 | ⏳ |
+| **Re-run 10-message accuracy test (target ≥ 90%)** | ✅ 10/10 (100%) |
+| Git commit Phase 2 | ✅ |
 
-**Last test result**: 8/10 (80%) — 2 capability questions misclassified as `technical`  
-**Fix applied**: Updated system prompt with explicit `other` boundary rule  
-**Next step**: Re-run test, expect 10/10
+**Final test result**: 10/10 (100%) — total cost $0.002568 for 10 messages  
+**Fix applied**: System prompt updated — capability questions explicitly → `other`; greeting fast-path skips Haiku entirely
 
 ---
 
-## Phase 3 — Context Builder ⏳ PENDING PERMISSION
+## Phase 3 — Context Builder ✅ COMPLETE
 
 **Goal**: Assemble a rich, token-budgeted context window (≤ 4,000 tokens) for every non-greeting reply.
 
 | Task | Status |
 |------|--------|
-| `agent/context_builder.py` created | ⏳ |
-| `build_conversation_summary()` — Haiku summary of all threads, cached 24h | ⏳ |
-| `get_feedback_log_entries(query, k=5)` — embed + cosine-search feedback | ⏳ |
-| `get_current_thread(thread_id)` — fetch last 10 messages | ⏳ |
-| `assemble(thread_id, message, intent)` → `{system_prompt, context_str, estimated_tokens}` | ⏳ |
-| Token counting with `anthropic.count_tokens()` to verify budget | ⏳ |
+| `agent/context_builder.py` created | ✅ |
+| `build_conversation_summary()` — Haiku summary of all threads, cached 24h | ✅ |
+| `get_feedback_log_entries(query, k=5)` — Phase 6 stub (returns []) | ✅ |
+| `get_current_thread(thread_id)` — fetch last 10 messages | ✅ |
+| `assemble(thread_id, message, intent)` → `{system_prompt, context_str, exact_tokens, sections}` | ✅ |
+| Token counting — exact via `client.messages.count_tokens()` | ✅ |
+| Budget trimming — thread first, then wiki, if over 4,000 tokens | ✅ |
+| Fixed double-header bug in wiki chunk formatting | ✅ |
+
+**Final test result**: 810 tokens exact (20.2% of 4,000 budget) ✅  
+**Summary cost**: $0.001906 Haiku (cached after first call)  
+**`AGENT_SYSTEM_PROMPT`** defined here as single source of truth → imported by Phase 4
 
 **Context window layout**:
 ```
