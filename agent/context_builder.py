@@ -237,12 +237,18 @@ def get_feedback_log_entries(query: str, k: int = 5) -> list[dict]:
     """
     Return top-k similar past approved (customer_msg, final_reply) pairs.
 
-    Phase 6 stub — returns [] until wiki/feedback_index.faiss is built.
-    Once Phase 6 is live this function is replaced with a FAISS similarity search.
+    Phase 6: calls db.feedback_log.search_feedback() which queries the FAISS
+    feedback index (wiki/feedback_index.faiss).  Returns [] gracefully when
+    the index doesn't exist yet (first run, or fewer than 1 entry).
+
+    Each returned dict: {thread_id, customer_msg, final_text, intent,
+                         edit_dist_norm, score}
     """
-    # TODO (Phase 6): embed `query` → search feedback_index.faiss → return top-k dicts
-    # Each dict: {thread_id, customer_msg, final_text, intent, edit_dist_norm}
-    return []
+    try:
+        from db.feedback_log import search_feedback
+        return search_feedback(query, k=k)
+    except Exception:
+        return []
 
 
 # ── Section: Current Thread ───────────────────────────────────────────────────
@@ -412,13 +418,16 @@ def assemble(
             sections["wiki"] = _approx_tokens(wiki_section)
 
     # ── 8. Assemble final context string ─────────────────────────────────────
-    parts = [wiki_section, summary_section]
+    # Split into cacheable (stable product context) vs dynamic (per-request)
+    # so draft_agent can apply cache_control correctly.
+    cacheable_str = wiki_section + "\n" + summary_section
+    dynamic_parts = []
     if feedback_section:
-        parts.append(feedback_section)
-    parts += [thread_section, msg_section]
-
-    context_str    = "\n".join(parts)
-    total_approx   = sum(sections.values())
+        dynamic_parts.append(feedback_section)
+    dynamic_parts += [thread_section, msg_section]
+    dynamic_str   = "\n".join(dynamic_parts)
+    context_str   = cacheable_str + "\n" + dynamic_str
+    total_approx  = sum(sections.values())
 
     # ── 9. One exact token count from Anthropic API ───────────────────────────
     exact_tokens = _count_tokens_exact(
@@ -429,7 +438,9 @@ def assemble(
 
     return {
         "system_prompt":    AGENT_SYSTEM_PROMPT,
-        "context_str":      context_str,
+        "context_str":      context_str,        # full combined (for logging)
+        "cacheable_str":    cacheable_str,       # wiki + summary  → cache_control
+        "dynamic_str":      dynamic_str,         # feedback + thread + message
         "estimated_tokens": total_approx,
         "exact_tokens":     exact_tokens,
         "sections":         sections,

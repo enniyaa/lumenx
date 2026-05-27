@@ -14,8 +14,8 @@
 | 3 | Context Builder | ✅ COMPLETE |
 | 4 | Draft Agent | ✅ COMPLETE |
 | 5 | Human Review UI + Feedback Capture | ✅ COMPLETE |
-| 6 | Feedback Log | ⏳ PENDING |
-| 7 | Confidence Net (MLP) | ⏳ PENDING |
+| 6 | Feedback Log | ✅ COMPLETE |
+| 7 | Confidence Net (MLP) | ✅ COMPLETE |
 | 8 | Auto-Reply Router | ⏳ PENDING |
 | 9 | Cost Dashboard | ⏳ PENDING |
 | 10 | Hardening & Deployment | ⏳ PENDING |
@@ -171,33 +171,41 @@ exact_context_tokens        — token count from Phase 3 context builder
 
 ---
 
-## Phase 6 — Feedback Log ⏳ PENDING PERMISSION
+## Phase 6 — Feedback Log ✅ COMPLETE
 
 **Goal**: Every approved/edited reply becomes a few-shot example for future context.
 
 | Task | Status |
 |------|--------|
-| `db/feedback_log.py` — insert `FeedbackEntry` on approve/edit | ⏳ |
-| `wiki/feedback_index.faiss` — embed customer messages for similarity search | ⏳ |
-| Rebuild feedback index nightly (or every 10th new entry) | ⏳ |
-| Wire `get_feedback_log_entries()` in context builder | ⏳ |
+| `db/feedback_log.py` — `insert_feedback()`, `rebuild_feedback_index()`, `search_feedback()`, `real_label_count()` | ✅ |
+| `wiki/feedback_index.faiss` — built; 454 entries indexed after bootstrap | ✅ |
+| Rebuild on every 10th new entry (Phase 5 router), nightly (Phase 7 script) | ✅ |
+| `get_feedback_log_entries()` wired in context builder → `search_feedback()` | ✅ |
+| Fixed `DetachedInstanceError` in `rebuild_feedback_index()` (eager dict conversion) | ✅ |
+| `scripts/seed_feedback.py` — 18 realistic seed examples for development | ✅ |
+
+**Final test result**: 4/4 FAISS search queries return relevant hits (scores 0.67–0.83)  
+**Feedback in context**: 396 tokens injected into assembled context window ✅
 
 ---
 
-## Phase 7 — Confidence Net (MLP) ⏳ PENDING PERMISSION
+## Phase 7 — Confidence Net (MLP) ✅ COMPLETE
 
 **Goal**: Predict P(reply approved as-is) for every new draft.
 
 | Task | Status |
 |------|--------|
-| `training/featurize.py` — 6 float features extraction | ⏳ |
-| `scripts/bootstrap_labels.py` — heuristic labels from 100 demo conversations | ⏳ |
-| `training/train.py` — MLPClassifier (64×64, ReLU, Adam), StratifiedKFold eval | ⏳ |
-| `agent/confidence_net.py` — inference wrapper, returns 0.5 if < 50 real labels | ⏳ |
-| `scripts/nightly_retrain.py` — retrain cron, deploy if PR-AUC improves | ⏳ |
+| `training/featurize.py` — 6 float features + `featurize_all()` (DetachedInstanceError fixed) | ✅ |
+| `scripts/bootstrap_labels.py` — 217 pos + 217 neg from LumenX export (265 conversations) | ✅ |
+| `training/train.py` — MLPClassifier (64×64, ReLU, Adam), StratifiedKFold eval | ✅ |
+| `agent/confidence_net.py` — inference wrapper, returns 0.5 if < 50 real labels | ✅ |
+| `scripts/nightly_retrain.py` — retrain cron; skips if real_labels < 50; logs to CostLog | ✅ |
+| `models/confidence_net.pkl` — initial model deployed | ✅ |
 
-**MLP Features**: `len_ratio`, `intent_encoded`, `retrieval_hits`, `edit_dist_norm`, `has_price_mention`, `draft_len_tokens`  
-**Gate**: Only route via MLP when ≥ 50 real labelled examples exist
+**Bootstrap result**: 454 samples (234 pos / 220 neg), PR-AUC=1.000 (bootstrap labels — expected; perturbed negatives are distinguishable by design)  
+**Routing gate**: INACTIVE until 30 more real labels accumulate (currently 20/50)  
+**Predict returns 0.5** for all inference calls while gate is inactive ✅  
+**nightly_retrain()** correctly skips when real_labels < 50 ✅
 
 ---
 

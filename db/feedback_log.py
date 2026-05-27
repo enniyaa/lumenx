@@ -91,15 +91,27 @@ def rebuild_feedback_index() -> int:
     except ImportError as e:
         raise RuntimeError(f"Missing dependency: {e}")
 
+    # Eagerly convert to dicts inside the session to avoid DetachedInstanceError
     with get_db() as db:
-        entries = db.query(FeedbackEntry).all()
+        rows = db.query(FeedbackEntry).all()
+        entries = [
+            {
+                "id":             e.id,
+                "thread_id":      e.thread_id,
+                "customer_msg":   e.customer_msg or "",
+                "final_text":     e.final_text or "",
+                "intent":         e.intent or "other",
+                "edit_dist_norm": float(e.edit_dist_norm) if e.edit_dist_norm is not None else 0.0,
+            }
+            for e in rows
+        ]
 
     if not entries:
         return 0
 
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    texts = [e.customer_msg for e in entries]
+    texts      = [e["customer_msg"] for e in entries]
     embeddings = model.encode(texts, show_progress_bar=False)
     embeddings = np.array(embeddings, dtype="float32")
     faiss.normalize_L2(embeddings)
@@ -109,19 +121,8 @@ def rebuild_feedback_index() -> int:
     index.add(embeddings)
     faiss.write_index(index, FEEDBACK_INDEX_PATH)
 
-    chunks = [
-        {
-            "id":           e.id,
-            "thread_id":    e.thread_id,
-            "customer_msg": e.customer_msg,
-            "final_text":   e.final_text,
-            "intent":       e.intent,
-            "edit_dist_norm": e.edit_dist_norm or 0.0,
-        }
-        for e in entries
-    ]
     with open(FEEDBACK_CHUNKS_PATH, "w", encoding="utf-8") as f:
-        json.dump(chunks, f, ensure_ascii=False, indent=2)
+        json.dump(entries, f, ensure_ascii=False, indent=2)
 
     return len(entries)
 
