@@ -153,6 +153,7 @@ def health():
     except Exception:
         pass
 
+    from db.models import masked_db_url
     return {
         "status":          "ok" if _state["db_connected"] else "degraded",
         "db_connected":    _state["db_connected"],
@@ -161,6 +162,7 @@ def health():
         "poller_active":   _state["poller_active"],
         "real_labels":     real_labels,
         "uptime_seconds":  round(uptime, 1),
+        "db_url":          masked_db_url(),
         "errors":          _state["errors"],
     }
 

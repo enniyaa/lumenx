@@ -46,7 +46,7 @@ def _naive(dt: datetime) -> datetime:
 # ── GET /agent/stats ──────────────────────────────────────────────────────────
 
 @router.get("/agent/stats")
-def get_stats(period: str = Query("day", regex="^(day|week|month)$")):
+def get_stats(period: str = Query("day", pattern="^(day|week|month)$")):
     """
     Aggregate KPIs for the requested period.
 
@@ -155,7 +155,7 @@ def list_replies(
     limit:  int = Query(50,   ge=1, le=200),
     intent: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
-    period: Optional[str] = Query(None, regex="^(day|week|month)$"),
+    period: Optional[str] = Query(None, pattern="^(day|week|month)$"),
 ):
     """
     Paginated reply log (most recent first).

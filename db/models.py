@@ -85,24 +85,65 @@ class MLPTrainingRow(Base):
     feedback_entry = relationship("FeedbackEntry", back_populates="mlp_row")
 
 
+def _build_postgres_url_from_parts() -> str | None:
+    """
+    Construct a PostgreSQL URL from individual PG* env vars that Railway
+    always sets alongside DATABASE_URL.  Falls back to None if any key is missing.
+    This sidesteps special-character password encoding issues in the raw URL string.
+    """
+    from urllib.parse import quote_plus
+    host     = os.getenv("PGHOST")
+    port     = os.getenv("PGPORT", "5432")
+    user     = os.getenv("PGUSER")
+    password = os.getenv("PGPASSWORD")
+    dbname   = os.getenv("PGDATABASE")
+    if all([host, user, password, dbname]):
+        return f"postgresql://{quote_plus(user)}:{quote_plus(password)}@{host}:{port}/{dbname}"
+    return None
+
+
 def get_engine(database_url: str | None = None):
-    url = database_url or os.getenv("DATABASE_URL", "sqlite:///./data/agent.db")
+    import logging
+    logger = logging.getLogger("lumenx.db")
+
+    raw = database_url or os.getenv("DATABASE_URL", "sqlite:///./data/agent.db")
 
     # Railway (and Heroku) emit postgres:// — SQLAlchemy 2.x requires postgresql://
-    if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql://", 1)
+    if raw.startswith("postgres://"):
+        raw = raw.replace("postgres://", "postgresql://", 1)
 
-    if "sqlite" in url:
-        # SQLite: single-threaded check disabled so background poller thread can write
-        return create_engine(url, connect_args={"check_same_thread": False})
-    else:
-        # PostgreSQL: pre-ping recycles stale connections after Railway container restarts
-        return create_engine(
-            url,
-            pool_pre_ping=True,
-            pool_size=5,
-            max_overflow=10,
-        )
+    if "sqlite" in raw:
+        # SQLite: disable thread check so background poller can write
+        return create_engine(raw, connect_args={"check_same_thread": False})
+
+    # PostgreSQL path — try to create engine; if the raw URL has unencoded special
+    # characters in the password (common on Railway), fall back to PG* vars.
+    from sqlalchemy.exc import ArgumentError
+    try:
+        engine = create_engine(raw, pool_pre_ping=True, pool_size=5, max_overflow=10)
+        # Probe the connection immediately so we fail fast here, not at query time
+        with engine.connect():
+            pass
+        return engine
+    except (ArgumentError, Exception) as exc:
+        logger.warning("DATABASE_URL parse/connect failed (%s); trying PG* vars…", exc)
+
+    fallback = _build_postgres_url_from_parts()
+    if fallback:
+        logger.info("Connecting via PG* env vars")
+        return create_engine(fallback, pool_pre_ping=True, pool_size=5, max_overflow=10)
+
+    # Last resort: local SQLite so the app at least starts
+    sqlite_url = "sqlite:///./data/agent.db"
+    logger.error("No valid DB URL found — falling back to %s", sqlite_url)
+    return create_engine(sqlite_url, connect_args={"check_same_thread": False})
+
+
+def masked_db_url() -> str:
+    """Return DATABASE_URL with the password replaced by ***  (for /health display)."""
+    import re
+    url = os.getenv("DATABASE_URL", "sqlite:///./data/agent.db")
+    return re.sub(r"(?<=://.{0,64}:)[^@]+(?=@)", "***", url)
 
 
 def init_db(database_url: str | None = None):
