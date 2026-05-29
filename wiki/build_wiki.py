@@ -1,5 +1,5 @@
-"""
-LLM Wiki Builder — Phase 1
+﻿"""
+LLM Wiki Builder â€” Phase 1
 Fetches all 20 LumenX products from the admin API, chunks each product
 into focused passages, embeds them with sentence-transformers, and
 stores a FAISS index for fast retrieval at query time.
@@ -17,7 +17,7 @@ import urllib3
 import requests
 import numpy as np
 
-# ── Corporate TLS proxy fix ────────────────────────────────────────────────
+# â”€â”€ Corporate TLS proxy fix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Many corporate networks intercept HTTPS with their own CA.  We disable
 # certificate verification for all outbound HTTPS calls so that requests to
 # HuggingFace and the LumenX API succeed.
@@ -36,7 +36,7 @@ try:
 
     configure_http_backend(backend_factory=_no_verify_backend)
 except (ImportError, AttributeError):
-    pass  # Older version — fall back to env vars
+    pass  # Older version â€” fall back to env vars
 
 os.environ["CURL_CA_BUNDLE"] = ""
 os.environ["REQUESTS_CA_BUNDLE"] = ""
@@ -47,7 +47,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 load_dotenv()
 
-BASE_URL   = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app")
+BASE_URL   = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app").strip()
 ADMIN_TOKEN = os.getenv("LUMENX_ADMIN_TOKEN", "")
 WIKI_DIR   = os.path.join(os.path.dirname(__file__))
 INDEX_PATH = os.path.join(WIKI_DIR, "index.faiss")
@@ -56,10 +56,10 @@ CHUNKS_PATH = os.path.join(WIKI_DIR, "chunks.json")
 HEADERS = {"X-Admin-Token": ADMIN_TOKEN}
 
 
-# ── Fetch ────────────────────────────────────────────────────────────────────
+# â”€â”€ Fetch â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def fetch_products() -> list[dict]:
-    print("Fetching products from LumenX API …")
+    print("Fetching products from LumenX API â€¦")
     resp = requests.get(f"{BASE_URL}/api/admin/products", headers=HEADERS, timeout=30, verify=False)
     resp.raise_for_status()
     data = resp.json()
@@ -68,11 +68,11 @@ def fetch_products() -> list[dict]:
         products = data
     else:
         products = data.get("products", data.get("data", []))
-    print(f"  → {len(products)} products fetched")
+    print(f"  â†’ {len(products)} products fetched")
     return products
 
 
-# ── Chunking ─────────────────────────────────────────────────────────────────
+# â”€â”€ Chunking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _safe(val):
     """Return a non-None string."""
@@ -100,7 +100,7 @@ def chunk_product(product: dict) -> list[dict]:
                 "product_id":   pid,
                 "product_name": name,
                 "section":      section,
-                "text":         f"[{name} — {section}]\n{text}",
+                "text":         f"[{name} â€” {section}]\n{text}",
             })
 
     # Overview / description
@@ -119,12 +119,12 @@ def chunk_product(product: dict) -> list[dict]:
     features = product.get("features", product.get("feature_list", []))
     if features:
         if isinstance(features, list):
-            feat_text = "\n".join(f"• {f}" for f in features)
+            feat_text = "\n".join(f"â€¢ {f}" for f in features)
         else:
             feat_text = _safe(features)
         add("features", feat_text)
 
-    # Pricing — critical, never hallucinate
+    # Pricing â€” critical, never hallucinate
     pricing = product.get("pricing", product.get("pricing_tiers", product.get("tiers")))
     if pricing:
         if isinstance(pricing, list):
@@ -134,14 +134,14 @@ def chunk_product(product: dict) -> list[dict]:
                     tier_name  = tier.get("name", tier.get("tier", ""))
                     tier_price = tier.get("price", tier.get("cost", ""))
                     tier_desc  = tier.get("description", tier.get("features", ""))
-                    lines.append(f"• {tier_name}: {tier_price} — {_safe(tier_desc)}")
+                    lines.append(f"â€¢ {tier_name}: {tier_price} â€” {_safe(tier_desc)}")
                 else:
-                    lines.append(f"• {tier}")
+                    lines.append(f"â€¢ {tier}")
             add("pricing", "\n".join(lines))
         else:
             add("pricing", _safe(pricing))
 
-    # Refund & cancellation policy — critical
+    # Refund & cancellation policy â€” critical
     refund_parts = []
     for key in ("refund_policy", "refund", "cancellation_policy", "cancellation", "money_back"):
         if product.get(key):
@@ -198,7 +198,7 @@ def chunk_product(product: dict) -> list[dict]:
     return chunks
 
 
-# ── Embed & Index ─────────────────────────────────────────────────────────────
+# â”€â”€ Embed & Index â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def build_index(chunks: list[dict]):
     try:
@@ -209,7 +209,7 @@ def build_index(chunks: list[dict]):
         print("Run: pip install sentence-transformers faiss-cpu")
         sys.exit(1)
 
-    print(f"Embedding {len(chunks)} chunks with all-MiniLM-L6-v2 …")
+    print(f"Embedding {len(chunks)} chunks with all-MiniLM-L6-v2 â€¦")
     model = SentenceTransformer("all-MiniLM-L6-v2")
     texts = [c["text"] for c in chunks]
     embeddings = model.encode(texts, show_progress_bar=True, batch_size=32)
@@ -223,17 +223,17 @@ def build_index(chunks: list[dict]):
     index.add(embeddings)
 
     faiss.write_index(index, INDEX_PATH)
-    print(f"  → FAISS index saved: {INDEX_PATH}  ({index.ntotal} vectors, dim={dim})")
+    print(f"  â†’ FAISS index saved: {INDEX_PATH}  ({index.ntotal} vectors, dim={dim})")
     return index
 
 
 def save_chunks(chunks: list[dict]):
     with open(CHUNKS_PATH, "w", encoding="utf-8") as f:
         json.dump(chunks, f, indent=2, ensure_ascii=False)
-    print(f"  → Chunks saved: {CHUNKS_PATH}  ({len(chunks)} entries)")
+    print(f"  â†’ Chunks saved: {CHUNKS_PATH}  ({len(chunks)} entries)")
 
 
-# ── Main ─────────────────────────────────────────────────────────────────────
+# â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def build_wiki():
     if not ADMIN_TOKEN:
@@ -246,12 +246,12 @@ def build_wiki():
     for p in products:
         c = chunk_product(p)
         all_chunks.extend(c)
-        print(f"  {p.get('name', p.get('id', '?')):30s}  → {len(c)} chunks")
+        print(f"  {p.get('name', p.get('id', '?')):30s}  â†’ {len(c)} chunks")
 
     print(f"\nTotal chunks: {len(all_chunks)}")
     save_chunks(all_chunks)
     build_index(all_chunks)
-    print("\n✅ LLM Wiki built successfully.")
+    print("\nâœ… LLM Wiki built successfully.")
 
 
 if __name__ == "__main__":

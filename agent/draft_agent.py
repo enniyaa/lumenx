@@ -1,11 +1,11 @@
-"""
-Draft Agent — Phase 4
+﻿"""
+Draft Agent â€” Phase 4
 Generates a grounded customer support reply using Claude Sonnet.
 
 Prompt-caching strategy:
-  system block          → cache_control: ephemeral  (agent persona, ~400 tok)
-  user block 1 (stable) → cache_control: ephemeral  (wiki + summary, ~1 000 tok)
-  user block 2 (dynamic)→ no cache                  (thread + message, ~1 000 tok)
+  system block          â†’ cache_control: ephemeral  (agent persona, ~400 tok)
+  user block 1 (stable) â†’ cache_control: ephemeral  (wiki + summary, ~1 000 tok)
+  user block 2 (dynamic)â†’ no cache                  (thread + message, ~1 000 tok)
 
 Every call logs full token breakdown + USD cost to CostLog.
 """
@@ -25,7 +25,7 @@ patch_ssl()
 
 load_dotenv()
 
-# ── Constants ────────────────────────────────────────────────────────────────
+# â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 DRAFT_MODEL = "claude-sonnet-4-6"
 
@@ -37,7 +37,7 @@ SONNET_CACHE_READ_PRICE  = 0.30  / 1_000_000
 REPLY_MAX_TOKENS = int(os.getenv("REPLY_MAX_TOKENS", "500"))
 
 
-# ── Result dataclass ──────────────────────────────────────────────────────────
+# â”€â”€ Result dataclass â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @dataclass
 class DraftResult:
@@ -55,10 +55,10 @@ class DraftResult:
     exact_context_tokens:       int = 0
 
 
-# ── Cost log helper ───────────────────────────────────────────────────────────
+# â”€â”€ Cost log helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _log_cost(result: DraftResult) -> None:
-    """Silently insert a CostLog row — never raises."""
+    """Silently insert a CostLog row â€” never raises."""
     try:
         from db.session import get_db
         from db.models import CostLog
@@ -78,7 +78,7 @@ def _log_cost(result: DraftResult) -> None:
         pass
 
 
-# ── Main draft function ───────────────────────────────────────────────────────
+# â”€â”€ Main draft function â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def generate_draft(
     thread_id: str,
@@ -104,7 +104,7 @@ def generate_draft(
     if client is None:
         client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-    # ── 1. Assemble context (or use provided) ────────────────────────────────
+    # â”€â”€ 1. Assemble context (or use provided) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if context is None:
         from agent.context_builder import assemble
         context = assemble(thread_id, user_message, intent, client=client)
@@ -121,8 +121,8 @@ def generate_draft(
         "sections":  context.get("sections", {}),
     }, ensure_ascii=False)
 
-    # ── 2. Build prompt-cached API request ───────────────────────────────────
-    # System block: agent persona (cache_control → ephemeral)
+    # â”€â”€ 2. Build prompt-cached API request â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # System block: agent persona (cache_control â†’ ephemeral)
     system_blocks = [
         {
             "type": "text",
@@ -136,15 +136,15 @@ def generate_draft(
         {
             "type": "text",
             "text": cacheable_str,
-            "cache_control": {"type": "ephemeral"},   # wiki + summary → cache
+            "cache_control": {"type": "ephemeral"},   # wiki + summary â†’ cache
         },
         {
             "type": "text",
-            "text": dynamic_str,                       # thread + message → no cache
+            "text": dynamic_str,                       # thread + message â†’ no cache
         },
     ]
 
-    # ── 3. Call Sonnet ────────────────────────────────────────────────────────
+    # â”€â”€ 3. Call Sonnet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     from agent.retry import call_with_retry
     response = call_with_retry(
         client.messages.create,
@@ -184,18 +184,18 @@ def generate_draft(
         exact_context_tokens=context.get("exact_tokens", 0),
     )
 
-    # ── 4. Log cost ───────────────────────────────────────────────────────────
+    # â”€â”€ 4. Log cost â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     _log_cost(result)
 
     return result
 
 
-# ── Self-test ─────────────────────────────────────────────────────────────────
+# â”€â”€ Self-test â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 if __name__ == "__main__":
     import requests, os as _os
 
-    BASE_URL    = _os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app")
+    BASE_URL    = _os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app").strip()
     ADMIN_TOKEN = _os.getenv("LUMENX_ADMIN_TOKEN", "")
 
     from ssl_utils import patch_ssl
@@ -221,7 +221,7 @@ if __name__ == "__main__":
 
     print(f"\nUsing thread: {thread_id}\n")
     print(f"{'Intent':<12} {'Cache':<6} {'In':>6} {'Out':>6} {'CacheR':>7} {'CacheW':>7} {'Cost($)':>10}")
-    print("─" * 70)
+    print("â”€" * 70)
 
     total_cost = 0.0
     for intent, message in TEST_CASES:
@@ -234,7 +234,7 @@ if __name__ == "__main__":
         )
         total_cost += result.cost_usd
 
-    print("─" * 70)
+    print("â”€" * 70)
     print(f"{'TOTAL':<12} {'':6} {'':>6} {'':>6} {'':>7} {'':>7} ${total_cost:>9.6f}")
     print(f"\nLast reply preview:\n{result.text[:300]}...")
-    print("\nPhase 4 PASSED — draft agent ready.")
+    print("\nPhase 4 PASSED â€” draft agent ready.")

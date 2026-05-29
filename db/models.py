@@ -142,8 +142,9 @@ def get_engine(database_url: str | None = None):
 def masked_db_url() -> str:
     """Return DATABASE_URL with the password replaced by ***  (for /health display)."""
     import re
-    url = os.getenv("DATABASE_URL", "sqlite:///./data/agent.db")
-    return re.sub(r"(?<=://.{0,64}:)[^@]+(?=@)", "***", url)
+    url = os.getenv("DATABASE_URL", "sqlite:///./data/agent.db").strip()
+    # Replace password in scheme://user:PASSWORD@host  — fixed-width lookbehind safe
+    return re.sub(r"(://[^:/?#]+:)[^@]+(@)", r"\1***\2", url)
 
 
 def init_db(database_url: str | None = None):

@@ -1,12 +1,12 @@
-"""
-Auto-Reply Router — Phase 8
+﻿"""
+Auto-Reply Router â€” Phase 8
 Gate between auto-send and human review using the confidence score.
 
 Logic:
   IF model_deployed AND real_labels >= MIN_REAL_LABELS AND confidence >= CONFIDENCE_THRESHOLD
-    → POST reply to LumenX API, record as auto_sent
+    â†’ POST reply to LumenX API, record as auto_sent
   ELSE
-    → INSERT into review_queue for human review
+    â†’ INSERT into review_queue for human review
 """
 
 import json
@@ -22,15 +22,15 @@ patch_ssl()
 from dotenv import load_dotenv
 load_dotenv()
 
-LUMENX_BASE_URL    = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app")
-LUMENX_ADMIN_TOKEN = os.getenv("LUMENX_ADMIN_TOKEN", "")
+LUMENX_BASE_URL    = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app").strip()
+LUMENX_ADMIN_TOKEN = os.getenv("LUMENX_ADMIN_TOKEN", "").strip()
 
 
 def _headers():
     return {"X-Admin-Token": LUMENX_ADMIN_TOKEN, "Content-Type": "application/json"}
 
 
-# ── Public: send reply ────────────────────────────────────────────────────────
+# â”€â”€ Public: send reply â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def send_reply(
     thread_id: str,
@@ -52,7 +52,7 @@ def send_reply(
         return False
 
 
-# ── Public: route ─────────────────────────────────────────────────────────────
+# â”€â”€ Public: route â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def route(
     thread_id: str,
@@ -90,7 +90,7 @@ def route(
     return {"action": "queued", "queue_id": queue_id}
 
 
-# ── Private helpers ───────────────────────────────────────────────────────────
+# â”€â”€ Private helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _enqueue(thread_id, customer_msg, draft_text, confidence, intent,
              features, context_json, cost_usd=0.0) -> int:

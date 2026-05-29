@@ -1,13 +1,13 @@
-"""
-Review Queue Router — Phase 5
+﻿"""
+Review Queue Router â€” Phase 5
 All endpoints for the human review workflow.
 
 Endpoints:
-  GET  /agent/queue                    — list pending queue items
-  POST /agent/queue/{id}/approve       — approve draft as-is → send to LumenX
-  POST /agent/queue/{id}/edit          — send edited text → save training example
-  POST /agent/queue/{id}/reject        — discard draft (human writes from scratch)
-  POST /agent/queue/{id}/feedback      — thumbs up/down on a resolved item
+  GET  /agent/queue                    â€” list pending queue items
+  POST /agent/queue/{id}/approve       â€” approve draft as-is â†’ send to LumenX
+  POST /agent/queue/{id}/edit          â€” send edited text â†’ save training example
+  POST /agent/queue/{id}/reject        â€” discard draft (human writes from scratch)
+  POST /agent/queue/{id}/feedback      â€” thumbs up/down on a resolved item
 
 Every approve / edit inserts a FeedbackEntry row (the Phase 6 training signal).
 """
@@ -21,12 +21,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-# ── Router ────────────────────────────────────────────────────────────────────
+# â”€â”€ Router â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 router = APIRouter(prefix="/agent/queue", tags=["review-queue"])
 
 
-# ── Request / response models ─────────────────────────────────────────────────
+# â”€â”€ Request / response models â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class EditBody(BaseModel):
     edited_text: str
@@ -49,7 +49,7 @@ class QueueItem(BaseModel):
         from_attributes = True
 
 
-# ── DB dependency ─────────────────────────────────────────────────────────────
+# â”€â”€ DB dependency â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def get_db_session():
     from db.session import get_db
@@ -57,7 +57,7 @@ def get_db_session():
         yield db
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _get_item_or_404(item_id: int, db: Session):
     from db.models import ReviewQueue
@@ -112,7 +112,7 @@ def _send_to_lumenx(thread_id: str, text: str, confidence: float) -> bool:
     from ssl_utils import patch_ssl
     patch_ssl()
 
-    base  = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app")
+    base  = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app").strip()
     token = os.getenv("LUMENX_ADMIN_TOKEN", "")
     try:
         resp = requests.post(
@@ -127,7 +127,7 @@ def _send_to_lumenx(thread_id: str, text: str, confidence: float) -> bool:
         return False
 
 
-# ── Endpoints ─────────────────────────────────────────────────────────────────
+# â”€â”€ Endpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.get("", response_model=list[QueueItem])
 def list_queue(status: str = "pending", limit: int = 50):
@@ -196,7 +196,7 @@ def get_queue_item(item_id: int):
 def approve(item_id: int):
     """
     Approve the draft as-is.
-      1. Send draft_text to LumenX API  (non-fatal — records sent=false on failure)
+      1. Send draft_text to LumenX API  (non-fatal â€” records sent=false on failure)
       2. Insert FeedbackEntry(approved_as_is=True)
       3. Mark queue item 'approved'
     """
@@ -231,7 +231,7 @@ def approve(item_id: int):
 def edit_and_send(item_id: int, body: EditBody):
     """
     Send an edited version of the draft.
-      1. Send edited_text to LumenX API  (non-fatal — records sent=false on failure)
+      1. Send edited_text to LumenX API  (non-fatal â€” records sent=false on failure)
       2. Insert FeedbackEntry(approved_as_is=False, final_text=edited_text)
       3. Mark queue item 'edited'
     """
@@ -256,7 +256,7 @@ def edit_and_send(item_id: int, body: EditBody):
 @router.post("/{item_id}/reject")
 def reject(item_id: int):
     """
-    Discard the agent draft — human will write from scratch.
+    Discard the agent draft â€” human will write from scratch.
     No LumenX send. No FeedbackEntry (there's no final text to record).
     """
     from db.session import get_db

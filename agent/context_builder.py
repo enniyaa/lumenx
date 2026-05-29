@@ -1,20 +1,20 @@
-"""
-Context Builder — Phase 3
-Assembles a rich, token-budgeted context window (≤ 4,000 tokens) for every
+﻿"""
+Context Builder â€” Phase 3
+Assembles a rich, token-budgeted context window (â‰¤ 4,000 tokens) for every
 non-greeting reply, in this order:
 
-  ┌─────────────────────────────┬──────────────────────┐
-  │ Section                     │ Target tokens        │
-  ├─────────────────────────────┼──────────────────────┤
-  │ [SYSTEM PROMPT]             │ ~400  (prompt-cached)│
-  │ [PRODUCT WIKI CHUNKS]       │ ~600  (top-k FAISS)  │
-  │ [CONVERSATION SUMMARY]      │ ~400  (Haiku, 24 h)  │
-  │ [FEEDBACK LOG ENTRIES]      │ ~600  (Phase 6 stub) │
-  │ [CONVERSATION HISTORY]      │ ~800  (last 10 msgs) │
-  │ [CURRENT CUSTOMER MESSAGE]  │ ~200                 │
-  ├─────────────────────────────┼──────────────────────┤
-  │ TOTAL BUDGET                │ ≤ 4,000 tokens       │
-  └─────────────────────────────┴──────────────────────┘
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚ Section                     â”‚ Target tokens        â”‚
+  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+  â”‚ [SYSTEM PROMPT]             â”‚ ~400  (prompt-cached)â”‚
+  â”‚ [PRODUCT WIKI CHUNKS]       â”‚ ~600  (top-k FAISS)  â”‚
+  â”‚ [CONVERSATION SUMMARY]      â”‚ ~400  (Haiku, 24 h)  â”‚
+  â”‚ [FEEDBACK LOG ENTRIES]      â”‚ ~600  (Phase 6 stub) â”‚
+  â”‚ [CONVERSATION HISTORY]      â”‚ ~800  (last 10 msgs) â”‚
+  â”‚ [CURRENT CUSTOMER MESSAGE]  â”‚ ~200                 â”‚
+  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+  â”‚ TOTAL BUDGET                â”‚ â‰¤ 4,000 tokens       â”‚
+  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
 Public API:
   assemble(thread_id, user_message, intent, client?) -> AssembledContext
@@ -39,7 +39,7 @@ patch_ssl()
 
 load_dotenv()
 
-# ── Constants ────────────────────────────────────────────────────────────────
+# â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 SUMMARY_MODEL = "claude-haiku-4-5-20251001"
 
@@ -50,8 +50,8 @@ CONTEXT_BUDGET     = int(os.getenv("CONTEXT_BUDGET_TOKENS", "4000"))
 SUMMARY_CACHE_TTL  = 86_400   # 24 hours in seconds
 THREAD_MAX_MSGS    = 10       # keep last N messages from current thread
 
-LUMENX_BASE_URL    = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app")
-LUMENX_ADMIN_TOKEN = os.getenv("LUMENX_ADMIN_TOKEN", "")
+LUMENX_BASE_URL    = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app").strip()
+LUMENX_ADMIN_TOKEN = os.getenv("LUMENX_ADMIN_TOKEN", "").strip()
 
 # Per-section soft targets (used for trimming priority)
 SECTION_BUDGETS = {
@@ -63,27 +63,27 @@ SECTION_BUDGETS = {
     "message":  200,
 }
 
-# ── Agent System Prompt ───────────────────────────────────────────────────────
-# Single source of truth — imported by draft_agent.py in Phase 4.
+# â”€â”€ Agent System Prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# Single source of truth â€” imported by draft_agent.py in Phase 4.
 
 AGENT_SYSTEM_PROMPT = """\
 You are a professional, empathetic customer support agent for LumenX, a B2B SaaS company.
 
-RULES — follow these without exception:
+RULES â€” follow these without exception:
 1. NEVER invent or guess pricing, trial periods, refund windows, or discount details.
    If the exact figure is not in the provided product context, say:
-   "I don't have that specific detail on hand — our team will follow up shortly."
+   "I don't have that specific detail on hand â€” our team will follow up shortly."
 2. Be warm, concise, and professional. No filler phrases like "Great question!".
 3. Answer only what the customer asked. Do not upsell unless directly relevant.
 4. If the customer is frustrated, acknowledge it before solving the problem.
-5. Always sign off with: "— LumenX Support"
+5. Always sign off with: "â€” LumenX Support"
 """
 
-# ── In-memory summary cache (24 h TTL) ───────────────────────────────────────
+# â”€â”€ In-memory summary cache (24 h TTL) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 _summary_cache: dict = {"text": None, "expires_at": 0.0, "cost_usd": 0.0}
 
-# ── Utility helpers ───────────────────────────────────────────────────────────
+# â”€â”€ Utility helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _lumenx_headers() -> dict:
     return {"X-Admin-Token": LUMENX_ADMIN_TOKEN}
@@ -132,7 +132,7 @@ def _log_summary_cost(
     output_tokens: int,
     cost_usd: float,
 ) -> None:
-    """Silently write summary cost to CostLog — never raises."""
+    """Silently write summary cost to CostLog â€” never raises."""
     try:
         from db.session import get_db
         from db.models import CostLog
@@ -152,7 +152,7 @@ def _log_summary_cost(
         pass
 
 
-# ── Section: Conversation Summary ────────────────────────────────────────────
+# â”€â”€ Section: Conversation Summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def build_conversation_summary(
     client: anthropic.Anthropic | None = None,
@@ -162,8 +162,8 @@ def build_conversation_summary(
     """
     Fetch all LumenX threads, summarise with Haiku, cache result for 24 h.
 
-    Returns a short paragraph (≤ 200 tokens) summarising recent customer
-    support patterns — common topics, recurring issues, overall sentiment.
+    Returns a short paragraph (â‰¤ 200 tokens) summarising recent customer
+    support patterns â€” common topics, recurring issues, overall sentiment.
     The summary is injected into every non-greeting context window.
     """
     now = time.time()
@@ -202,9 +202,9 @@ def build_conversation_summary(
 
     thread_list = "\n".join(lines)
     prompt = (
-        "Summarise the following recent customer support threads in 3–4 sentences. "
+        "Summarise the following recent customer support threads in 3â€“4 sentences. "
         "Focus on: common question topics, recurring pain points, and overall sentiment. "
-        "Be concise — this summary will be injected into future reply prompts.\n\n"
+        "Be concise â€” this summary will be injected into future reply prompts.\n\n"
         f"Threads ({len(threads)} total, showing {len(lines)}):\n{thread_list}"
     )
 
@@ -233,7 +233,7 @@ def build_conversation_summary(
     return summary
 
 
-# ── Section: Feedback Log Entries ─────────────────────────────────────────────
+# â”€â”€ Section: Feedback Log Entries â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def get_feedback_log_entries(query: str, k: int = 5) -> list[dict]:
     """
@@ -253,7 +253,7 @@ def get_feedback_log_entries(query: str, k: int = 5) -> list[dict]:
         return []
 
 
-# ── Section: Current Thread ───────────────────────────────────────────────────
+# â”€â”€ Section: Current Thread â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def get_current_thread(
     thread_id: str,
@@ -291,7 +291,7 @@ def get_current_thread(
     ]
 
 
-# ── Formatters ────────────────────────────────────────────────────────────────
+# â”€â”€ Formatters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _format_thread(messages: list[dict]) -> str:
     if not messages:
@@ -308,7 +308,7 @@ def _format_thread(messages: list[dict]) -> str:
 def _format_wiki_chunks(chunks: list[dict]) -> str:
     if not chunks:
         return "(no relevant product documentation found)"
-    # chunk["text"] already includes its own "[Product — section]" header
+    # chunk["text"] already includes its own "[Product â€” section]" header
     # (written by build_wiki.py), so we just join the texts directly.
     parts = [c.get("text", "").strip() for c in chunks if c.get("text")]
     return "\n\n".join(parts)
@@ -330,7 +330,7 @@ def _wrap_section(tag: str, content: str) -> str:
     return f"=== {tag} ===\n{content.strip()}\n"
 
 
-# ── Main assembler ────────────────────────────────────────────────────────────
+# â”€â”€ Main assembler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def assemble(
     thread_id: str,
@@ -349,8 +349,8 @@ def assemble(
 
     Returns:
         {
-            "system_prompt":     str,   # agent persona → pass as system= in API call
-            "context_str":       str,   # assembled context → pass as user message
+            "system_prompt":     str,   # agent persona â†’ pass as system= in API call
+            "context_str":       str,   # assembled context â†’ pass as user message
             "estimated_tokens":  int,   # total tokens in context_str (approximate)
             "exact_tokens":      int,   # accurate token count from Anthropic API
             "sections":          dict,  # per-section token counts for debugging
@@ -361,31 +361,31 @@ def assemble(
     if client is None:
         client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-    # ── 1. Wiki chunks ────────────────────────────────────────────────────────
+    # â”€â”€ 1. Wiki chunks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     from wiki.retriever import retrieve, K_BY_INTENT
     k           = K_BY_INTENT.get(intent, 3)
     wiki_chunks = retrieve(user_message, intent=intent, k=k) if k > 0 else []
     wiki_text   = _format_wiki_chunks(wiki_chunks)
 
-    # ── 2. Conversation summary (cached 24 h) ─────────────────────────────────
+    # â”€â”€ 2. Conversation summary (cached 24 h) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     summary_text = build_conversation_summary(client, thread_id=thread_id)
 
-    # ── 3. Feedback log entries (Phase 6 stub → []) ───────────────────────────
+    # â”€â”€ 3. Feedback log entries (Phase 6 stub â†’ []) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     feedback_entries = get_feedback_log_entries(user_message, k=5)
     feedback_text    = _format_feedback_entries(feedback_entries)
 
-    # ── 4. Current thread (last 10 messages) ─────────────────────────────────
+    # â”€â”€ 4. Current thread (last 10 messages) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     thread_messages = get_current_thread(thread_id)
     thread_text     = _format_thread(thread_messages)
 
-    # ── 5. Build sections ─────────────────────────────────────────────────────
+    # â”€â”€ 5. Build sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     wiki_section     = _wrap_section("PRODUCT CONTEXT",            wiki_text)
     summary_section  = _wrap_section("RECENT CUSTOMER PATTERNS",   summary_text)
     feedback_section = _wrap_section("SIMILAR PAST REPLIES",       feedback_text) if feedback_text else ""
     thread_section   = _wrap_section("CONVERSATION HISTORY",       thread_text)
     msg_section      = _wrap_section("CURRENT CUSTOMER MESSAGE",   user_message)
 
-    # ── 6. Approximate token counts per section ───────────────────────────────
+    # â”€â”€ 6. Approximate token counts per section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     sections = {
         "system":   _approx_tokens(AGENT_SYSTEM_PROMPT),
         "wiki":     _approx_tokens(wiki_section),
@@ -396,7 +396,7 @@ def assemble(
     }
     total_approx = sum(sections.values())
 
-    # ── 7. Trim if over budget (priority: thread → feedback → wiki) ───────────
+    # â”€â”€ 7. Trim if over budget (priority: thread â†’ feedback â†’ wiki) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if total_approx > CONTEXT_BUDGET:
         overage = total_approx - CONTEXT_BUDGET
 
@@ -419,7 +419,7 @@ def assemble(
             wiki_section = _wrap_section("PRODUCT CONTEXT", wiki_text)
             sections["wiki"] = _approx_tokens(wiki_section)
 
-    # ── 8. Assemble final context string ─────────────────────────────────────
+    # â”€â”€ 8. Assemble final context string â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # Split into cacheable (stable product context) vs dynamic (per-request)
     # so draft_agent can apply cache_control correctly.
     cacheable_str = wiki_section + "\n" + summary_section
@@ -431,7 +431,7 @@ def assemble(
     context_str   = cacheable_str + "\n" + dynamic_str
     total_approx  = sum(sections.values())
 
-    # ── 9. One exact token count from Anthropic API ───────────────────────────
+    # â”€â”€ 9. One exact token count from Anthropic API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     exact_tokens = _count_tokens_exact(
         client,
         system=AGENT_SYSTEM_PROMPT,
@@ -441,7 +441,7 @@ def assemble(
     return {
         "system_prompt":    AGENT_SYSTEM_PROMPT,
         "context_str":      context_str,        # full combined (for logging)
-        "cacheable_str":    cacheable_str,       # wiki + summary  → cache_control
+        "cacheable_str":    cacheable_str,       # wiki + summary  â†’ cache_control
         "dynamic_str":      dynamic_str,         # feedback + thread + message
         "estimated_tokens": total_approx,
         "exact_tokens":     exact_tokens,
@@ -451,7 +451,7 @@ def assemble(
     }
 
 
-# ── Self-test ─────────────────────────────────────────────────────────────────
+# â”€â”€ Self-test â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 if __name__ == "__main__":
     import sys
@@ -487,20 +487,20 @@ if __name__ == "__main__":
 
     ctx = assemble(thread_id, user_msg, intent, client=client)
 
-    # ── Print section breakdown ───────────────────────────────────────────────
-    print("┌─────────────────────────────────┬──────────────┐")
-    print("│ Section                         │ Tokens (est) │")
-    print("├─────────────────────────────────┼──────────────┤")
+    # â”€â”€ Print section breakdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    print("â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”")
+    print("â”‚ Section                         â”‚ Tokens (est) â”‚")
+    print("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤")
     for name, toks in ctx["sections"].items():
-        print(f"│ {name:<31} │ {toks:>12} │")
-    print("├─────────────────────────────────┼──────────────┤")
-    print(f"│ {'TOTAL (approximate)':<31} │ {ctx['estimated_tokens']:>12} │")
-    print(f"│ {'TOTAL (Anthropic exact)':<31} │ {ctx['exact_tokens']:>12} │")
-    print(f"│ {'BUDGET':<31} │ {CONTEXT_BUDGET:>12} │")
-    print("└─────────────────────────────────┴──────────────┘")
+        print(f"â”‚ {name:<31} â”‚ {toks:>12} â”‚")
+    print("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤")
+    print(f"â”‚ {'TOTAL (approximate)':<31} â”‚ {ctx['estimated_tokens']:>12} â”‚")
+    print(f"â”‚ {'TOTAL (Anthropic exact)':<31} â”‚ {ctx['exact_tokens']:>12} â”‚")
+    print(f"â”‚ {'BUDGET':<31} â”‚ {CONTEXT_BUDGET:>12} â”‚")
+    print("â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜")
 
     budget_pct = ctx["exact_tokens"] / CONTEXT_BUDGET * 100
-    status = "✅ WITHIN BUDGET" if ctx["exact_tokens"] <= CONTEXT_BUDGET else "❌ OVER BUDGET"
+    status = "âœ… WITHIN BUDGET" if ctx["exact_tokens"] <= CONTEXT_BUDGET else "âŒ OVER BUDGET"
     print(f"\nBudget used: {budget_pct:.1f}%  {status}")
 
     if ctx["summary_cost_usd"] > 0:
@@ -510,15 +510,15 @@ if __name__ == "__main__":
 
     print(f"\nWiki chunks retrieved: {len(ctx['wiki_chunks'])}")
     for c in ctx["wiki_chunks"]:
-        print(f"  • {c.get('product_name','?')} — {c.get('section','?')}  (score: {c.get('score',0):.4f})")
+        print(f"  â€¢ {c.get('product_name','?')} â€” {c.get('section','?')}  (score: {c.get('score',0):.4f})")
 
-    print("\n" + "─" * 60)
+    print("\n" + "â”€" * 60)
     print("ASSEMBLED CONTEXT PREVIEW (first 800 chars):")
-    print("─" * 60)
+    print("â”€" * 60)
     print(ctx["context_str"][:800])
     print("...")
 
     if ctx["exact_tokens"] <= CONTEXT_BUDGET:
-        print("\nPhase 3 PASSED — context builder ready.")
+        print("\nPhase 3 PASSED â€” context builder ready.")
     else:
         print(f"\nWARNING: Context {ctx['exact_tokens']} tokens > budget {CONTEXT_BUDGET}. Review trimming logic.")

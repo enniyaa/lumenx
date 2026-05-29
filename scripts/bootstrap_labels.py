@@ -1,11 +1,11 @@
-"""
-Bootstrap Labels — Phase 7b
+﻿"""
+Bootstrap Labels â€” Phase 7b
 Generates the initial MLP training dataset from the LumenX demo export.
 
 Strategy (from CLAUDE.md):
   Layer 0 (Day 0):
-  1. GET /api/admin/export — fetch all demo conversations
-  2. Conversations where last_admin_at is set → label as approved_as_is=1
+  1. GET /api/admin/export â€” fetch all demo conversations
+  2. Conversations where last_admin_at is set â†’ label as approved_as_is=1
      (Proxy: seeded admin replies were "accepted by the demo")
   3. Create artificial negatives by perturbing approved replies:
        - Random word deletion (30%)
@@ -13,12 +13,12 @@ Strategy (from CLAUDE.md):
        - Truncation to first 60% of chars (40%)
   4. Mark all as is_bootstrap=True
   5. Train the initial model with force_deploy=True
-     (model is scoring-only until ≥50 real labels accumulate)
+     (model is scoring-only until â‰¥50 real labels accumulate)
 
 Run once at launch:
     python scripts/bootstrap_labels.py
 
-Safe to re-run — clears existing bootstrap rows before inserting.
+Safe to re-run â€” clears existing bootstrap rows before inserting.
 """
 
 import os
@@ -33,7 +33,7 @@ from dotenv import load_dotenv; load_dotenv()
 import requests
 from datetime import datetime, timezone
 
-LUMENX_BASE_URL    = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app")
+LUMENX_BASE_URL    = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app").strip()
 LUMENX_ADMIN_TOKEN = os.getenv("LUMENX_ADMIN_TOKEN", "")
 
 FILLER_WORDS = [
@@ -44,7 +44,7 @@ FILLER_WORDS = [
 random.seed(42)
 
 
-# ── Perturbation helpers ──────────────────────────────────────────────────────
+# â”€â”€ Perturbation helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _perturb(text: str) -> str:
     """Generate a plausibly bad version of `text` (label=0)."""
@@ -68,13 +68,13 @@ def _perturb(text: str) -> str:
             words.insert(pos, word)
         return " ".join(words)
 
-    # Truncate to first 55–70% of chars
+    # Truncate to first 55â€“70% of chars
     keep_pct = random.uniform(0.55, 0.70)
     cutoff   = int(len(text) * keep_pct)
     return text[:cutoff].rsplit(" ", 1)[0] + " [incomplete]"
 
 
-# ── Fetch export ──────────────────────────────────────────────────────────────
+# â”€â”€ Fetch export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def fetch_export() -> list[dict]:
     """Fetch all conversations from /api/admin/export."""
@@ -92,11 +92,11 @@ def fetch_export() -> list[dict]:
             return data
         return data.get("conversations", data.get("threads", []))
     except Exception as e:
-        print(f"  WARNING: export fetch failed ({e}) — using empty list")
+        print(f"  WARNING: export fetch failed ({e}) â€” using empty list")
         return []
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def main(force_train: bool = True) -> dict:
     from db.session import get_db
@@ -107,12 +107,12 @@ def main(force_train: bool = True) -> dict:
     conversations = fetch_export()
     print(f"  Got {len(conversations)} conversations")
 
-    # ── Clear existing bootstrap rows ────────────────────────────────────────
+    # â”€â”€ Clear existing bootstrap rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     with get_db() as db:
         deleted = db.query(FeedbackEntry).filter(FeedbackEntry.is_bootstrap == True).delete()
         print(f"  Cleared {deleted} previous bootstrap FeedbackEntry rows")
 
-    # ── Insert new bootstrap rows ─────────────────────────────────────────────
+    # â”€â”€ Insert new bootstrap rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     positives = []
     negatives = []
     now       = datetime.now(timezone.utc)
@@ -193,7 +193,7 @@ def main(force_train: bool = True) -> dict:
     total_inserted = len(all_rows)
     print(f"  Inserted {total_inserted} bootstrap FeedbackEntry rows")
 
-    # ── Rebuild feedback FAISS index ─────────────────────────────────────────
+    # â”€â”€ Rebuild feedback FAISS index â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     print("Rebuilding feedback FAISS index...")
     n_indexed = rebuild_feedback_index()
     print(f"  Index built with {n_indexed} total entries (bootstrap + real)")
@@ -206,7 +206,7 @@ def main(force_train: bool = True) -> dict:
         "trained":        False,
     }
 
-    # ── Optionally train the initial model ───────────────────────────────────
+    # â”€â”€ Optionally train the initial model â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if force_train and total_inserted > 0:
         print("\nTraining initial Confidence Net on bootstrap data...")
         from training.train import train

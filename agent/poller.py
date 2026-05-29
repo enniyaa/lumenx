@@ -1,22 +1,22 @@
-"""
-Inbox Poller — Phase 8
+﻿"""
+Inbox Poller â€” Phase 8
 The agent's heartbeat: polls LumenX for unanswered customer messages and runs
-the full pipeline (intent → context → draft → confidence → route) for each one.
+the full pipeline (intent â†’ context â†’ draft â†’ confidence â†’ route) for each one.
 
 Pipeline per message:
   1. Classify intent (Haiku)
-  2. Greeting fast-path → send direct reply, skip context + Sonnet
+  2. Greeting fast-path â†’ send direct reply, skip context + Sonnet
   3. Assemble context (wiki + summary + feedback + thread)
   4. Generate draft reply (Sonnet, with prompt caching)
   5. Extract MLP features, predict confidence score
-  6. Route: auto-send (if gate open + score ≥ threshold) or enqueue for review
+  6. Route: auto-send (if gate open + score â‰¥ threshold) or enqueue for review
   7. Log cost to CostLog
 
 Safety guarantees:
-  • Rate limit: max 1 reply per thread per 5 seconds (in-process dict)
-  • Already-answered check: inbox API returns awaiting_admin=false for answered threads
-  • Error fallback: any LLM exception → enqueue for human review (never silent failure)
-  • Duplicate guard: tracks processed message IDs across the process lifetime
+  â€¢ Rate limit: max 1 reply per thread per 5 seconds (in-process dict)
+  â€¢ Already-answered check: inbox API returns awaiting_admin=false for answered threads
+  â€¢ Error fallback: any LLM exception â†’ enqueue for human review (never silent failure)
+  â€¢ Duplicate guard: tracks processed message IDs across the process lifetime
 
 Run via FastAPI startup (background thread) or directly:
   python -m agent.poller --once    # single poll
@@ -44,16 +44,16 @@ load_dotenv()
 
 logger = logging.getLogger("lumenx.poller")
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# â”€â”€ Configuration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-LUMENX_BASE_URL    = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app")
-LUMENX_ADMIN_TOKEN = os.getenv("LUMENX_ADMIN_TOKEN", "")
+LUMENX_BASE_URL    = os.getenv("LUMENX_BASE_URL", "https://lumenx-demo.up.railway.app").strip()
+LUMENX_ADMIN_TOKEN = os.getenv("LUMENX_ADMIN_TOKEN", "").strip()
 POLL_INTERVAL_SEC  = int(os.getenv("POLL_INTERVAL_SECONDS", "5"))
 RATE_LIMIT_SEC     = 5       # min seconds between replies on the same thread
 LOOKBACK_SEC       = 3600    # inbox lookback window (catch missed msgs after restart)
 
 
-# ── InboxPoller ───────────────────────────────────────────────────────────────
+# â”€â”€ InboxPoller â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class InboxPoller:
     """
@@ -70,7 +70,7 @@ class InboxPoller:
         self._running              = False
         self._lock                 = threading.Lock()
 
-    # ── Public API ────────────────────────────────────────────────────────────
+    # â”€â”€ Public API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     def poll_once(self) -> list[dict]:
         """
@@ -98,7 +98,7 @@ class InboxPoller:
 
             # Rate limit
             if self._is_rate_limited(thread_id):
-                logger.debug("Rate-limited thread %s — skipping", thread_id)
+                logger.debug("Rate-limited thread %s â€” skipping", thread_id)
                 continue
 
             result = self._process_message(thread_id, msg_id, msg_text)
@@ -113,7 +113,7 @@ class InboxPoller:
         return results
 
     def run_loop(self):
-        """Blocking poll loop — call from a daemon thread."""
+        """Blocking poll loop â€” call from a daemon thread."""
         self._running = True
         logger.info("Poller started (interval=%ds)", POLL_INTERVAL_SEC)
         while self._running:
@@ -129,7 +129,7 @@ class InboxPoller:
     def stop(self):
         self._running = False
 
-    # ── Internal: LumenX I/O ─────────────────────────────────────────────────
+    # â”€â”€ Internal: LumenX I/O â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     def _headers(self) -> dict:
         return {"X-Admin-Token": LUMENX_ADMIN_TOKEN, "Content-Type": "application/json"}
@@ -164,22 +164,22 @@ class InboxPoller:
         except Exception:
             return False
 
-    # ── Internal: rate limiting ───────────────────────────────────────────────
+    # â”€â”€ Internal: rate limiting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     def _is_rate_limited(self, thread_id: str) -> bool:
         last = self._last_reply_ts.get(thread_id, 0)
         return (time.time() - last) < RATE_LIMIT_SEC
 
-    # ── Internal: full pipeline ───────────────────────────────────────────────
+    # â”€â”€ Internal: full pipeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     def _process_message(self, thread_id: str, msg_id: str, msg_text: str) -> dict:
         """
         Run the complete pipeline for one customer message.
-        Any exception → enqueue for human review (never raises).
+        Any exception â†’ enqueue for human review (never raises).
         """
         logger.info("Processing thread=%s  msg_id=%s  text=%r", thread_id, msg_id, msg_text[:60])
 
-        # ── Step 1: Intent classification ────────────────────────────────────
+        # â”€â”€ Step 1: Intent classification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         try:
             from agent.intent_router import classify
             intent_result = classify(msg_text, thread_id=thread_id, client=self._client)
@@ -188,7 +188,7 @@ class InboxPoller:
             logger.error("Intent classification failed: %s", exc)
             return self._fallback_enqueue(thread_id, msg_text, "intent_error", str(exc))
 
-        # ── Step 2: Greeting fast-path ────────────────────────────────────────
+        # â”€â”€ Step 2: Greeting fast-path â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if intent == "greeting":
             reply = intent_result.get("greeting_reply", "Hello! How can LumenX Support help you today?")
             sent  = self._send_greeting(thread_id, reply)
@@ -200,7 +200,7 @@ class InboxPoller:
                 "cost_usd":  intent_result.get("cost_usd", 0.0),
             }
 
-        # ── Step 3: Context assembly ──────────────────────────────────────────
+        # â”€â”€ Step 3: Context assembly â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         try:
             from agent.context_builder import assemble
             ctx = assemble(thread_id, msg_text, intent, client=self._client)
@@ -208,7 +208,7 @@ class InboxPoller:
             logger.error("Context assembly failed: %s", exc)
             return self._fallback_enqueue(thread_id, msg_text, "context_error", str(exc))
 
-        # ── Step 4: Draft generation ──────────────────────────────────────────
+        # â”€â”€ Step 4: Draft generation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         try:
             from agent.draft_agent import generate_draft
             draft = generate_draft(
@@ -222,7 +222,7 @@ class InboxPoller:
             logger.error("Draft generation failed: %s", exc)
             return self._fallback_enqueue(thread_id, msg_text, "draft_error", str(exc))
 
-        # ── Step 5: Confidence features + score ──────────────────────────────
+        # â”€â”€ Step 5: Confidence features + score â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         try:
             from training.featurize import compute_inference_features
             from agent.confidence_net import get_confidence_net
@@ -239,7 +239,7 @@ class InboxPoller:
             features   = {}
             confidence = 0.5
 
-        # ── Step 6: Route ─────────────────────────────────────────────────────
+        # â”€â”€ Step 6: Route â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         try:
             from agent.auto_router import route
             routing = route(
@@ -303,7 +303,7 @@ class InboxPoller:
         }
 
 
-# ── Global singleton ──────────────────────────────────────────────────────────
+# â”€â”€ Global singleton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 _poller: Optional[InboxPoller] = None
 _poller_thread: Optional[threading.Thread] = None
@@ -336,7 +336,7 @@ def stop_poller():
         _poller.stop()
 
 
-# ── CLI entry point ───────────────────────────────────────────────────────────
+# â”€â”€ CLI entry point â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 if __name__ == "__main__":
     import argparse
