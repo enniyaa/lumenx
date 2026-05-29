@@ -87,7 +87,22 @@ class MLPTrainingRow(Base):
 
 def get_engine(database_url: str | None = None):
     url = database_url or os.getenv("DATABASE_URL", "sqlite:///./data/agent.db")
-    return create_engine(url, connect_args={"check_same_thread": False} if "sqlite" in url else {})
+
+    # Railway (and Heroku) emit postgres:// — SQLAlchemy 2.x requires postgresql://
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql://", 1)
+
+    if "sqlite" in url:
+        # SQLite: single-threaded check disabled so background poller thread can write
+        return create_engine(url, connect_args={"check_same_thread": False})
+    else:
+        # PostgreSQL: pre-ping recycles stale connections after Railway container restarts
+        return create_engine(
+            url,
+            pool_pre_ping=True,
+            pool_size=5,
+            max_overflow=10,
+        )
 
 
 def init_db(database_url: str | None = None):

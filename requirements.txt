@@ -11,3 +11,4 @@ numpy==2.2.6
 pydantic==2.11.5
 httpx==0.28.1
 Levenshtein==0.27.1
+psycopg2-binary==2.9.10
