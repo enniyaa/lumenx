@@ -62,5 +62,6 @@ EXPOSE 8001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
   CMD curl -f http://localhost:8001/health || exit 1
 
-# Default CMD (Railway overrides this via startCommand in railway.toml)
-CMD ["uvicorn", "agent.main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "1"]
+# Default CMD (Railway overrides via startCommand in railway.toml)
+RUN chmod +x start.sh
+CMD ["sh", "start.sh"]

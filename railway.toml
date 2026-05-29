@@ -7,7 +7,7 @@ dockerfilePath = "Dockerfile"
 
 [deploy]
 # Railway injects $PORT automatically; we use it here so the app binds correctly
-startCommand = "uvicorn agent.main:app --host 0.0.0.0 --port $PORT --workers 1"
+startCommand = "sh start.sh"
 healthcheckPath = "/health"
 # 300 s gives time for DB init + FAISS load + model warm-up on cold start
 healthcheckTimeout = 300
